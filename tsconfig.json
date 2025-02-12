@@ -18,6 +18,7 @@
     "expo-env.d.ts",
     "app/index.js",
     "app/_layout.js",
-    "app/postcode.js"
+    "app/postcode.js",
+    "nativewind-env.d.ts"
   ]
 }
