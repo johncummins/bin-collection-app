@@ -1,12 +1,23 @@
 import { Text } from "react-native";
-
 import { Input, InputField } from "@/components/ui/input";
 
-export default ({ label, placeholder }) => (
+export default ({
+  label,
+  placeholder,
+  value,
+  onChangeText,
+  onSubmitEditing,
+}) => (
   <>
-    <Text className="text-typography-500">{label}</Text>
-    <Input className="min-w-[350px]" variant="outline" size="xl">
-      <InputField placeholder={placeholder} />
+    {label && <Text className="text-lg font-semibold">{label}</Text>}
+    <Input variant="outline" size="xl">
+      <InputField
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        onSubmitEditing={onSubmitEditing}
+        returnKeyType="search"
+      />
     </Input>
   </>
 );

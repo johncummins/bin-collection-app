@@ -4,7 +4,7 @@ import { Redirect } from "expo-router";
 export default function HomeScreen() {
   const addressStored = false;
 
-  if (!addressStored) return <Redirect href="/postcode" />;
+  if (!addressStored) return <Redirect href="/findAddress" />;
 
   return (
     <View>
