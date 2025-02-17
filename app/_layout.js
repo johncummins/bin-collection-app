@@ -12,8 +12,11 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: "#f7f7f7" },
           headerShadowVisible: false,
         }}>
-        <Stack.Screen name="findAddress" options={{ title: "Find Address" }} />
-        <Stack.Screen name="index" options={{ title: `Address name here` }} />
+        <Stack.Screen
+          name="AddressScreen"
+          options={{ title: "Find Address" }}
+        />
+        <Stack.Screen name="index" options={{ title: "Home page" }} />
       </Stack>
     </GluestackUIProvider>
   );

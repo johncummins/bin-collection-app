@@ -18,7 +18,7 @@
     "expo-env.d.ts",
     "app/index.js",
     "app/_layout.js",
-    "app/findAddress.js",
+    "app/AddressScreen.js",
     "nativewind-env.d.ts"
   ]
 }

@@ -4,6 +4,8 @@ import Input from "./Components/Input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Table, TableBody, TableRow, TableData } from "@/components/ui/table";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 
 import _ from "lodash";
 
@@ -13,6 +15,7 @@ export default function PostcodeScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const router = useRouter();
 
   const fetchAddresses = async () => {
     if (!postcode.trim()) return;
@@ -185,10 +188,22 @@ export default function PostcodeScreen() {
     setLoading(false);
   };
 
-  const handleRowClick = (id) => {
-    setSelectedRowId(selectedRowId === id ? null : id);
+  const handleRowClick = async ({ id: addressId, address }) => {
+    setSelectedRowId(selectedRowId === addressId ? null : addressId);
 
-    console.log(id);
+    const addressObject = {
+      id: addressId,
+      address: address,
+    };
+
+    try {
+      await AsyncStorage.setItem("address", JSON.stringify(addressObject));
+
+      // Go to home page
+      router.replace("/");
+    } catch (error) {
+      console.error("Error saving address ID:", error);
+    }
   };
 
   return (
@@ -201,11 +216,11 @@ export default function PostcodeScreen() {
             onChangeText={setPostcode}
             onSubmitEditing={fetchAddresses}
           />
-          {/* <Button size="lg" onPress={fetchAddresses} disabled={loading}>
+          <Button size="lg" onPress={fetchAddresses} disabled={loading}>
             <ButtonText className="text-typography-0">
               {loading ? "Searching..." : "Search"}
             </ButtonText>
-          </Button> */}
+          </Button>
 
           {error && <Text className="text-red-500 mt-2">{error}</Text>}
         </VStack>
@@ -220,27 +235,33 @@ export default function PostcodeScreen() {
             <Table>
               <TableBody>
                 {addresses.map(
-                  ({ houseNumber, street, town, postCode, id }) => (
-                    <Pressable
-                      key={id}
-                      onPress={() => handleRowClick(id)}
-                      className={` border-outline-200 ${
-                        selectedRowId === id ? "bg-gray-100" : "bg-background-0"
-                      }`}>
-                      <TableRow>
-                        <TableData>
-                          <View className="w-full">
-                            <Text>
-                              {_.capitalize(houseNumber)} {_.capitalize(street)}
-                            </Text>
-                            <Text className="text-gray-500 mt-2">
-                              {_.capitalize(town)}, {postCode}
-                            </Text>
-                          </View>
-                        </TableData>
-                      </TableRow>
-                    </Pressable>
-                  )
+                  ({ houseNumber, street, town, postCode, id }) => {
+                    const address = `${_.capitalize(
+                      houseNumber
+                    )} ${_.capitalize(street)}`;
+
+                    return (
+                      <Pressable
+                        key={id}
+                        onPress={() => handleRowClick({ id, address })}
+                        className={` border-outline-200 ${
+                          selectedRowId === id
+                            ? "bg-gray-100"
+                            : "bg-background-0"
+                        }`}>
+                        <TableRow>
+                          <TableData>
+                            <View className="w-full">
+                              <Text>{address}</Text>
+                              <Text className="text-gray-500 mt-2">
+                                {_.capitalize(town)}, {postCode}
+                              </Text>
+                            </View>
+                          </TableData>
+                        </TableRow>
+                      </Pressable>
+                    );
+                  }
                 )}
               </TableBody>
             </Table>
