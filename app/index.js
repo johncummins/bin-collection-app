@@ -4,8 +4,8 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import Carousel from "react-native-reanimated-carousel";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Button, ButtonText } from "@/components/ui/button";
+import CollectionBinIcon from "./Components/CollectionBinIcon";
 
 const BinCollectionScreen = () => {
   const router = useRouter(); // Initialize router
@@ -79,16 +79,16 @@ const BinCollectionScreen = () => {
     return (
       <View className="bg-white p-4 rounded-lg mx-8 flex-1 justify-center items-center">
         {/* date */}
-        <Text className="text-lg font-semibold">{formattedDate}</Text>
+        <Text className="text-lg font-semibold mb-8">{formattedDate}</Text>
 
         {/* Icon */}
         <View className="flex flex-row justify-center items-center">
           {roundTypes.map((type) => {
             const color = binColours[type];
             return (
-              <View className="flex-1 justify-center items-center">
-                <Icon name="trash-can-outline" size={150} color={color} />;
-                <Text>{type}</Text>
+              <View className="flex-1 justify-center items-center" key={type}>
+                <CollectionBinIcon width={150} height={150} fill={color} />
+                <Text className="mt-4">{type}</Text>
               </View>
             );
           })}
