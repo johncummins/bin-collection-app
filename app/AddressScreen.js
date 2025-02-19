@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { View, Pressable, Text, ScrollView } from "react-native";
 import Input from "./Components/Input";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -6,8 +6,7 @@ import { VStack } from "@/components/ui/vstack";
 import { Table, TableBody, TableRow, TableData } from "@/components/ui/table";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-
-import _ from "lodash";
+import { capitalize, throttle } from "lodash";
 
 export default function PostcodeScreen() {
   const [postcode, setPostcode] = useState("");
@@ -20,166 +19,37 @@ export default function PostcodeScreen() {
   const fetchAddresses = async () => {
     if (!postcode.trim()) return;
 
+    const postcodeRegex = /^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$/i;
+
+    // Validate postcode
+    if (!postcodeRegex.test(postcode.trim())) {
+      setError("Please enter a valid UK postcode.");
+      setAddresses([]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      // const response = await fetch(
-      //   `https://servicelayer3c.azure-api.net/wastecalendar/address/search?postcode=${encodeURIComponent(
-      //     postcode
-      //   )}`
-      // );
+      const response = await fetch(
+        `https://servicelayer3c.azure-api.net/wastecalendar/address/search?postcode=${encodeURIComponent(
+          postcode
+        )}`
+      );
 
-      // if (!response.ok) throw new Error("Failed to fetch addresses");
+      if (!response.ok) throw new Error("Failed to fetch addresses");
 
-      // const data = await response.json();
+      const data = await response.json();
 
-      // console.log(data);
+      if (!data.length || data[0].id < 0) {
+        setError("No addresses found for this postcode.");
+        setAddresses([]);
+        setLoading(false);
+        return;
+      }
 
-      const tempData = [
-        {
-          houseNumber: "77",
-          id: "10002568378",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD ROAD ROAD ROAD ROAD ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "79",
-          id: "10002568379",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "81",
-          id: "10002568380",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "83",
-          id: "10002568381",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "83A",
-          id: "10002568382",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "83B",
-          id: "10002568383",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "87",
-          id: "10002565529",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "89",
-          id: "10023617458",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "91",
-          id: "10023617459",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "127",
-          id: "10090967531",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "129",
-          id: "10090967532",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "131",
-          id: "10090967533",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "133",
-          id: "10090967534",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "135",
-          id: "10090967535",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "137",
-          id: "10090967536",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "139",
-          id: "10090967537",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "141",
-          id: "10090967538",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "143",
-          id: "10090967539",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "145",
-          id: "10090967540",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-        {
-          houseNumber: "147",
-          id: "10090967541",
-          postCode: "CB13EE",
-          street: "CROMWELL ROAD",
-          town: "CAMBRIDGE",
-        },
-      ];
-
-      setAddresses(tempData);
+      setAddresses(data);
     } catch (err) {
       setError("Invalid postcode or postcode does not exist");
       setAddresses([]);
@@ -187,6 +57,12 @@ export default function PostcodeScreen() {
 
     setLoading(false);
   };
+
+  // At most one API call every 10 seconds with latest postcode
+  const throttledFetchAddresses = useCallback(
+    throttle(() => fetchAddresses(), 10000),
+    [postcode]
+  );
 
   const handleRowClick = async ({ id: addressId, address }) => {
     setSelectedRowId(selectedRowId === addressId ? null : addressId);
@@ -213,10 +89,13 @@ export default function PostcodeScreen() {
           <Input
             placeholder="Search Postcode..."
             value={postcode}
-            onChangeText={setPostcode}
-            onSubmitEditing={fetchAddresses}
+            onChangeText={(text) => setPostcode(text)}
+            onSubmitEditing={throttledFetchAddresses}
           />
-          <Button size="lg" onPress={fetchAddresses} disabled={loading}>
+          <Button
+            size="lg"
+            onPress={throttledFetchAddresses}
+            disabled={loading}>
             <ButtonText className="text-typography-0">
               {loading ? "Searching..." : "Search"}
             </ButtonText>
@@ -236,9 +115,9 @@ export default function PostcodeScreen() {
               <TableBody>
                 {addresses.map(
                   ({ houseNumber, street, town, postCode, id }) => {
-                    const address = `${_.capitalize(
-                      houseNumber
-                    )} ${_.capitalize(street)}`;
+                    const address = `${capitalize(houseNumber)} ${capitalize(
+                      street
+                    )}`;
 
                     return (
                       <Pressable
@@ -254,7 +133,7 @@ export default function PostcodeScreen() {
                             <View className="w-full">
                               <Text>{address}</Text>
                               <Text className="text-gray-500 mt-2">
-                                {_.capitalize(town)}, {postCode}
+                                {capitalize(town)}, {postCode}
                               </Text>
                             </View>
                           </TableData>
