@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import Carousel from "react-native-reanimated-carousel";
 import { Button, ButtonText } from "@/components/ui/button";
 import CollectionBinIcon from "./Components/CollectionBinIcon";
+import { capitalize } from "lodash";
 
 const BinCollectionScreen = () => {
   const router = useRouter(); // Initialize router
@@ -17,6 +18,8 @@ const BinCollectionScreen = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [addressName, setAddressName] = useState("");
 
+  const goToAddressScreen = () => router.replace("/AddressScreen");
+
   useEffect(() => {
     const fetchBinData = async () => {
       try {
@@ -24,7 +27,7 @@ const BinCollectionScreen = () => {
         const storedAddress = await AsyncStorage.getItem("address");
 
         // Redirect if no address is saved
-        if (!storedAddress) return router.replace("/AddressScreen");
+        if (!storedAddress) return goToAddressScreen();
 
         const { id: addressId, address } = JSON.parse(storedAddress);
 
@@ -85,10 +88,11 @@ const BinCollectionScreen = () => {
         <View className="flex flex-row justify-center items-center">
           {roundTypes.map((type) => {
             const color = binColours[type];
+            const typeTitle = capitalize(type);
             return (
               <View className="flex-1 justify-center items-center" key={type}>
                 <CollectionBinIcon width={150} height={150} fill={color} />
-                <Text className="mt-4">{type}</Text>
+                <Text className="mt-4">{typeTitle}</Text>
               </View>
             );
           })}
@@ -99,6 +103,9 @@ const BinCollectionScreen = () => {
 
   return (
     <View className="flex-1 p-6">
+      <Button size="xl" onPress={goToAddressScreen}>
+        <ButtonText className="text-typography-0">Edit Address</ButtonText>
+      </Button>
       {/* <View className="justify-start">
         <Text className="text-lg ">Expected collections for {addressName}</Text>
       </View> */}
