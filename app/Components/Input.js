@@ -10,7 +10,7 @@ export default ({
 }) => (
   <>
     {label && <Text className="text-lg font-semibold">{label}</Text>}
-    <Input variant="outline" size="xl">
+    <Input variant="outline" size="lg">
       <InputField
         placeholder={placeholder}
         value={value}
