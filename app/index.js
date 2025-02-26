@@ -38,7 +38,7 @@ const BinCollectionScreen = () => {
 
         // Fetch fresh data
         const response = await fetch(
-          `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC/?numberOfCollections=12`
+          `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC&numberOfCollections=12`
         );
 
         let { collections = [] } = await response.json();
