@@ -136,7 +136,7 @@ const BinCollectionScreen = () => {
 
       {/* Button at the bottom */}
       <View className="pb-12">
-        <Button size="xl">
+        <Button size="xl" onPress={() => router.push("/ManageNotifications")}>
           <ButtonText className="text-typography-0">
             Manage Notifications
           </ButtonText>
