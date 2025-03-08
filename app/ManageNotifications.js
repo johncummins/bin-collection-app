@@ -16,11 +16,12 @@ async function requestPermissions() {
 async function scheduleNotification() {
   console.log("bin reminder set ***");
 
-  const nowPlusOneSecond = new Date(new Date().getTime() + 1 * 1000); // Trigger in 1 second
+  const nowPlusOneSecond = new Date(new Date().getTime() + 10 * 1000); // Trigger in 1 second
+  console.log("Scheduling notification for: ", nowPlusOneSecond);
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: "Test Notification",
+      title: "Test Notification Scheulded",
       body: "This is a scheduled notification!",
       sound: true,
     },
