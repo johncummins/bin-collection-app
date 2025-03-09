@@ -4,33 +4,54 @@ import { Platform, View, Text } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import * as Device from "expo-device";
 
-async function requestPermissions() {
-  // @todo add back in device check (remove for emulator testing)
-  //   if (Device.isDevice) {
-  const { status } = await Notifications.requestPermissionsAsync();
-  return status === "granted";
-  //   }
-  return false;
-}
-
 async function scheduleNotification() {
-  console.log("bin reminder set ***");
+  try {
+    // Clear any existing notifications first
+    await Notifications.cancelAllScheduledNotificationsAsync();
 
-  const nowPlusOneSecond = new Date(new Date().getTime() + 10 * 1000); // Trigger in 1 second
-  console.log("Scheduling notification for: ", nowPlusOneSecond);
+    const dates = [
+      new Date(Date.now() + 10 * 1000),
+      new Date(Date.now() + 20 * 1000),
+    ];
 
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "Test Notification Scheulded",
-      body: "This is a scheduled notification!",
-      sound: true,
-    },
-    trigger: { date: nowPlusOneSecond },
-  });
+    for (const date of dates) {
+      console.log(date);
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Bin Collection Reminder",
+          body: `It's pickup day on xxx. Your xxx bin will be picked up. (CB13EE) ${date}`,
+        },
+        trigger: date,
+      });
+    }
+  } catch (error) {
+    console.error("Scheduling error:", error);
+  }
 }
 
 export default function ManageNotifications() {
-  requestPermissions();
+  useEffect(() => {
+    // Configure notification handler when component mounts
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+
+    // Request permissions on component mount
+    async function setupNotifications() {
+      if (!Device.isDevice) return false;
+
+      const { status } = await Notifications.requestPermissionsAsync();
+
+      return status === "granted";
+    }
+
+    setupNotifications();
+  }, []);
+
   return (
     <View>
       <Text>Manage Notifications</Text>
