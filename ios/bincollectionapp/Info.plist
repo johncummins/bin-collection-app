@@ -28,7 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>myapp</string>
-          <string>com.anonymous.bin-collection-app</string>
+          <string>com.cummins.bin-collection-app</string>
         </array>
       </dict>
       <dict>

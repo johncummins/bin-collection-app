@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.bin-collection-app"
+      "bundleIdentifier": "com.cummins.bin-collection-app"
     },
     "android": {
       "adaptiveIcon": {
