@@ -56,7 +56,7 @@ export default function ManageNotifications() {
     <View>
       <Text>Manage Notifications</Text>
       <Button size="xl" onPress={() => scheduleNotification()}>
-        <ButtonText className="text-typography-0">Add Schedules</ButtonText>
+        <ButtonText>Add Schedules</ButtonText>
       </Button>
     </View>
   );

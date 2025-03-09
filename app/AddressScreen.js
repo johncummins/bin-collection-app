@@ -98,7 +98,7 @@ export default function PostcodeScreen() {
             size="lg"
             onPress={throttledFetchAddresses}
             disabled={loading}>
-            <ButtonText className="text-typography-0">
+            <ButtonText>
               {loading ? "Finding Your Address..." : "Find My Address"}
             </ButtonText>
           </Button>
