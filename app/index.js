@@ -5,20 +5,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import Carousel from "react-native-reanimated-carousel";
 import { Button, ButtonText } from "@/components/ui/button";
+import { Badge, BadgeIcon, BadgeText } from "@/components/ui/badge";
+import { Heading } from "@/components/ui/heading";
 import CollectionBinIcon from "./Components/CollectionBinIcon";
 import { capitalize } from "lodash";
+import { getDateWithSuffix, getBinName, getBinColour } from "./HelperFunctions"; // Importing the function
 
 const BinCollectionScreen = () => {
   const router = useRouter(); // Initialize router
-  const navigation = useNavigation(); // Use navigation for dynamic title
 
   const [binData, setBinData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [addressName, setAddressName] = useState("");
-
-  const goToAddressScreen = () => router.replace("/AddressScreen");
 
   useEffect(() => {
     const fetchBinData = async () => {
@@ -27,12 +27,9 @@ const BinCollectionScreen = () => {
         const storedAddress = await AsyncStorage.getItem("address");
 
         // Redirect if no address is saved
-        if (!storedAddress) return goToAddressScreen();
+        if (!storedAddress) return router.replace("/AddressScreen");
 
         const { id: addressId, address } = JSON.parse(storedAddress);
-
-        // Update screen title dynamically
-        navigation.setOptions({ title: address });
 
         setAddressName(address);
 
@@ -60,39 +57,65 @@ const BinCollectionScreen = () => {
   if (loading) return <ActivityIndicator />;
   if (error) return <Text>{error}</Text>;
 
-  const { width } = Dimensions.get("window");
+  const { width = 0, height = 0 } = Dimensions.get("window");
 
-  const itemHeight = 350;
+  const cardWidth = width;
+  const cardHeight = Math.max(height * 0.45, 280);
+  const iconSize = Math.max(width * 0.4, 80);
 
-  const displayCard = ({ item }) => {
+  const displayCard = ({ item, index }) => {
     const { date, roundTypes } = item;
 
-    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
-      weekday: "long",
-      day: "numeric",
-      month: "short",
-    });
+    const dateObject = new Date(date);
+    const day = dateObject.getDate();
+    const dateWithSuffix = getDateWithSuffix(dateObject);
 
-    const binColours = {
-      DOMESTIC: "black",
-      ORGANIC: "green",
-      RECYCLE: "blue",
-    };
+    const formattedDate = dateObject
+      .toLocaleDateString("en-GB", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      })
+      .replace(day, dateWithSuffix);
 
     return (
-      <View className="bg-white p-4 rounded-lg mx-8 flex-1 justify-center items-center">
-        {/* date */}
-        <Text className="text-lg font-semibold mb-8">{formattedDate}</Text>
+      <View className="bg-white p-4 rounded-lg mx-6 flex-1 justify-center items-center">
+        {/* Badge above the date */}
+        {index === 0 && (
+          <View className="flex-row justify-start w-full mb-4">
+            <Badge
+              className="flex-row items-center"
+              size="lg"
+              variant="outline"
+              action="muted">
+              {/* <Icon name="calendar" className="mr-2" />{" "} */}
+              {/* Replace with relevant icon */}
+              <BadgeText>Next Collection</BadgeText>
+            </Badge>
+          </View>
+        )}
+
+        {/* Date */}
+        <Text className="text-lg mb-10 font-semibold text-left w-full">
+          {formattedDate}
+        </Text>
 
         {/* Icon */}
         <View className="flex flex-row justify-center items-center">
-          {roundTypes.map((type) => {
-            const color = binColours[type];
-            const typeTitle = capitalize(type);
+          {roundTypes.map((binType) => {
+            const color = getBinColour(binType);
+            const binName = getBinName(binType);
+
             return (
-              <View className="flex-1 justify-center items-center" key={type}>
-                <CollectionBinIcon width={150} height={150} fill={color} />
-                <Text className="mt-4">{typeTitle}</Text>
+              <View
+                className="flex-1 justify-center items-center"
+                key={binType}>
+                <CollectionBinIcon
+                  width={iconSize}
+                  height={iconSize}
+                  fill={color}
+                />
+                <Text className="mt-6 text-lg">{binName}</Text>
               </View>
             );
           })}
@@ -103,30 +126,40 @@ const BinCollectionScreen = () => {
 
   return (
     <View className="flex-1 p-6">
-      <Button size="xl" onPress={goToAddressScreen}>
-        <ButtonText className="text-typography-0">Edit Address</ButtonText>
-      </Button>
-      {/* <View className="justify-start">
-        <Text className="text-lg ">Expected collections for {addressName}</Text>
-      </View> */}
+      <View className="flex-row justify-between items-center mb-4">
+        <Heading size="2xl" className="flex-1 flex-wrap">
+          {addressName}
+        </Heading>
+        <Button
+          size="md"
+          variant="outline"
+          action="primary"
+          onPress={() => router.push("/AddressScreen")}>
+          <ButtonText>Edit</ButtonText>
+        </Button>
+      </View>
 
       <View className="flex-grow justify-center items-center">
+        {/* <Text className="text-xl mb-6 text-left w-full">
+          Upcoming Bin Collections
+        </Text> */}
         <Carousel
-          width={width}
+          width={cardWidth}
           data={binData}
           pagingEnabled={true}
           snapEnabled={true}
-          height={itemHeight}
+          height={cardHeight}
+          loop={false}
           onProgressChange={(_, index) => setActiveIndex(Math.round(index))}
           renderItem={displayCard}
         />
 
         {/* Pagination dots */}
-        <View className="flex-row justify-center mt-4">
+        <View className="flex-row justify-center mt-8">
           {binData.map((_, index) => (
             <View
               key={index}
-              className={`h-2 w-2 rounded-full mx-1 ${
+              className={`h-3 w-3 rounded-full mx-2 ${
                 activeIndex === index ? "bg-blue-500" : "bg-gray-300"
               }`}
             />
@@ -137,9 +170,7 @@ const BinCollectionScreen = () => {
       {/* Button at the bottom */}
       <View className="pb-12">
         <Button size="xl" onPress={() => router.push("/ManageNotifications")}>
-          <ButtonText className="text-typography-0">
-            Manage Notifications
-          </ButtonText>
+          <ButtonText>Manage Notifications</ButtonText>
         </Button>
       </View>
     </View>
