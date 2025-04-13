@@ -1,5 +1,5 @@
 import { View, Text, Dimensions, ActivityIndicator } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, navigation } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -13,6 +13,7 @@ import { getDateWithSuffix, getBinName, getBinColour } from "./HelperFunctions";
 
 const BinCollectionScreen = () => {
   const router = useRouter(); // Initialize router
+  const navigation = useNavigation();
 
   const [binData, setBinData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -169,7 +170,13 @@ const BinCollectionScreen = () => {
 
       {/* Button at the bottom */}
       <View className="pb-12">
-        <Button size="xl" onPress={() => router.push("/ManageNotifications")}>
+        <Button
+          size="xl"
+          onPress={() => {
+            navigation.navigate("ManageNotifications", {
+              data: binData,
+            });
+          }}>
           <ButtonText>Manage Notifications</ButtonText>
         </Button>
       </View>

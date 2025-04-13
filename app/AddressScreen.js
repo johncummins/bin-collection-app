@@ -83,6 +83,31 @@ export default function PostcodeScreen() {
     }
   };
 
+  const tableRows = addresses.map(
+    ({ houseNumber, street, town, postCode, id }) => {
+      const address = `${capitalize(houseNumber)} ${capitalize(street)}`;
+      return (
+        <Pressable
+          key={id}
+          onPress={() => handleRowClick({ id, address })}
+          className={`border-outline-200 ${
+            selectedRowId === id ? "bg-gray-100" : "bg-background-0"
+          }`}>
+          <TableRow>
+            <TableData>
+              <View className="w-full">
+                <Text>{address}</Text>
+                <Text className="text-gray-500 mt-2">
+                  {capitalize(town)}, {postCode}
+                </Text>
+              </View>
+            </TableData>
+          </TableRow>
+        </Pressable>
+      );
+    }
+  );
+
   return (
     <View className="flex-1">
       {/* Search Input & Button */}
@@ -124,36 +149,7 @@ export default function PostcodeScreen() {
           </Text>
           <ScrollView className="flex-1">
             <Table>
-              <TableBody>
-                {addresses.map(
-                  ({ houseNumber, street, town, postCode, id }) => {
-                    const address = `${capitalize(houseNumber)} ${capitalize(
-                      street
-                    )}`;
-                    return (
-                      <Pressable
-                        key={id}
-                        onPress={() => handleRowClick({ id, address })}
-                        className={`border-outline-200 ${
-                          selectedRowId === id
-                            ? "bg-gray-100"
-                            : "bg-background-0"
-                        }`}>
-                        <TableRow>
-                          <TableData>
-                            <View className="w-full">
-                              <Text>{address}</Text>
-                              <Text className="text-gray-500 mt-2">
-                                {capitalize(town)}, {postCode}
-                              </Text>
-                            </View>
-                          </TableData>
-                        </TableRow>
-                      </Pressable>
-                    );
-                  }
-                )}
-              </TableBody>
+              <TableBody>{tableRows}</TableBody>
             </Table>
           </ScrollView>
         </View>
