@@ -21,14 +21,14 @@ export function getDateWithSuffix(date) {
   return day + suffix;
 }
 
-export function getBinColour(binType) {
-  if (!binType) return "";
+export function getBinColour(roundType) {
+  if (!roundType) return "";
 
-  return binColours[binType.toLowerCase()];
+  return binColours[roundType.toLowerCase()];
 }
 
-export function getBinName(binType) {
-  if (!binType) return "";
+export function getBinName(roundType) {
+  if (!roundType) return "";
   
-  return binNames[binType.toLowerCase()];
+  return binNames[roundType.toLowerCase()];
 }

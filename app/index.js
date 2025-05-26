@@ -100,14 +100,14 @@ const BinCollectionScreen = () => {
 
         {/* Icon */}
         <View className="flex flex-row justify-center items-center">
-          {roundTypes.map((binType) => {
-            const color = getBinColour(binType);
-            const binName = getBinName(binType);
+          {roundTypes.map((roundType) => {
+            const color = getBinColour(roundType);
+            const binName = getBinName(roundType);
 
             return (
               <View
                 className="flex-1 justify-center items-center"
-                key={binType}>
+                key={roundType}>
                 <CollectionBinIcon
                   width={iconSize}
                   height={iconSize}

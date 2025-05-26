@@ -14,23 +14,20 @@ import * as Device from "expo-device";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-async function scheduleNotification(settings, binData) {
+async function addNotification(settings, binCollections = []) {
+  console.log(binCollections);
   try {
     // Clear any existing notifications first
     await Notifications.cancelAllScheduledNotificationsAsync();
 
-    // Get next collection dates from binData
-    const collectionDates = binData.collections || [];
-    if (collectionDates.length === 0) {
-      console.log("No collection dates found");
-      return;
-    }
+    if (binCollections.length === 0) return console.log("No collection dates");
 
-    const { dayBefore, dayOf, binTypes } = settings;
+    const { dayBefore, dayOf, roundTypes } = settings;
 
-    for (const collection of collectionDates) {
+    for (const collection of binCollections) {
+      console.log(collection);
       // Only schedule notifications for selected bin types
-      if (!binTypes[collection.binType.toLowerCase()]) {
+      if (!roundTypes[collection.roundType.toLowerCase()]) {
         continue;
       }
 
@@ -48,12 +45,12 @@ async function scheduleNotification(settings, binData) {
           await Notifications.scheduleNotificationAsync({
             content: {
               title: "Bin Collection Tomorrow",
-              body: `Your ${collection.binType} bin will be collected tomorrow. Please put it out before 7am.`,
+              body: `Your ${collection.roundType} bin will be collected tomorrow. Please put it out before 7am.`,
             },
             trigger: dayBeforeDate,
           });
           console.log(
-            `Scheduled day before notification for ${collection.binType} on ${dayBeforeDate}`
+            `Scheduled day before notification for ${collection.roundType} on ${dayBeforeDate}`
           );
         }
       }
@@ -69,12 +66,12 @@ async function scheduleNotification(settings, binData) {
           await Notifications.scheduleNotificationAsync({
             content: {
               title: "Bin Collection Today",
-              body: `Your ${collection.binType} bin will be collected today. Make sure it's outside!`,
+              body: `Your ${collection.roundType} bin will be collected today. Make sure it's outside!`,
             },
             trigger: dayOfDateObj,
           });
           console.log(
-            `Scheduled day of notification for ${collection.binType} on ${dayOfDateObj}`
+            `Scheduled day of notification for ${collection.roundType} on ${dayOfDateObj}`
           );
         }
       }
@@ -98,17 +95,10 @@ async function scheduleNotification(settings, binData) {
 
 export default function ManageNotifications() {
   const route = useRoute();
-  const navigation = useNavigation();
 
-  // Initialize state with better error handling
-  const [binData, setBinData] = useState(() => {
-    try {
-      return route.params?.data || null;
-    } catch (e) {
-      console.error("Error accessing route params:", e);
-      return null;
-    }
-  });
+  const [binCollections, setBinCollections] = useState(
+    route.params?.data ?? null
+  );
 
   // Notification settings state
   const [dayBeforeEnabled, setDayBeforeEnabled] = useState(true);
@@ -117,7 +107,7 @@ export default function ManageNotifications() {
     new Date().setHours(1, 0, 0, 0)
   );
   const [dayOfTime, setDayOfTime] = useState(new Date().setHours(7, 0, 0, 0));
-  const [binTypes, setBinTypes] = useState({
+  const [roundTypes, setRoundTypes] = useState({
     black: true,
     green: true,
     brown: true,
@@ -171,8 +161,8 @@ export default function ManageNotifications() {
   };
 
   // Toggle bin type selection
-  const toggleBinType = (type) => {
-    setBinTypes((prev) => {
+  const toggleRoundType = (type) => {
+    setRoundTypes((prev) => {
       const newState = {
         ...prev,
         [type]: !prev[type],
@@ -212,28 +202,22 @@ export default function ManageNotifications() {
 
   // Update notification schedules
   const updateNotificationSchedules = async () => {
-    if (!binData) return;
+    if (!binCollections) return;
 
     const settings = {
-      dayBefore: {
-        enabled: dayBeforeEnabled,
-        time: dayBeforeTime,
-      },
-      dayOf: {
-        enabled: dayOfEnabled,
-        time: dayOfTime,
-      },
-      binTypes: binTypes,
+      dayBefore: { enabled: dayBeforeEnabled, time: dayBeforeTime },
+      dayOf: { enabled: dayOfEnabled, time: dayOfTime },
+      roundTypes,
     };
 
-    const success = await scheduleNotification(settings, binData);
+    const success = await addNotification(settings, binCollections);
     if (success) {
       console.log("Notifications updated successfully");
     }
   };
 
   // Loading state
-  if (!binData) {
+  if (!binCollections) {
     return (
       <View className="flex-1 items-center justify-center bg-white p-4">
         <Text className="text-gray-800 text-lg">
@@ -348,23 +332,29 @@ export default function ManageNotifications() {
         <View className="bg-white rounded-xl mb-6 overflow-hidden shadow">
           <TouchableOpacity
             className="flex-row justify-between items-center p-4 border-b border-gray-100"
-            onPress={() => toggleBinType("black")}>
+            onPress={() => toggleRoundType("black")}>
             <Text className="text-gray-800 text-base">Black</Text>
-            {binTypes.black && <Text className="text-blue-500 text-xl">✓</Text>}
+            {roundTypes.black && (
+              <Text className="text-blue-500 text-xl">✓</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
             className="flex-row justify-between items-center p-4 border-b border-gray-100"
-            onPress={() => toggleBinType("green")}>
+            onPress={() => toggleRoundType("green")}>
             <Text className="text-gray-800 text-base">Green</Text>
-            {binTypes.green && <Text className="text-blue-500 text-xl">✓</Text>}
+            {roundTypes.green && (
+              <Text className="text-blue-500 text-xl">✓</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
             className="flex-row justify-between items-center p-4"
-            onPress={() => toggleBinType("brown")}>
+            onPress={() => toggleRoundType("brown")}>
             <Text className="text-gray-800 text-base">Brown</Text>
-            {binTypes.brown && <Text className="text-blue-500 text-xl">✓</Text>}
+            {roundTypes.brown && (
+              <Text className="text-blue-500 text-xl">✓</Text>
+            )}
           </TouchableOpacity>
         </View>
 
