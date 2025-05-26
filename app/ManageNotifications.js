@@ -13,77 +13,60 @@ import { Button, ButtonText } from "@/components/ui/button";
 import * as Device from "expo-device";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { getBinColour } from "./HelperFunctions"; // Importing the function
 
-async function addNotification(settings, binCollections = []) {
-  console.log(binCollections);
+let FURTHEST_DATE = new Date();
+
+async function addNotifications(settings, binCollections = []) {
   try {
-    // Clear any existing notifications first
     await Notifications.cancelAllScheduledNotificationsAsync();
 
     if (binCollections.length === 0) return console.log("No collection dates");
 
-    const { dayBefore, dayOf, roundTypes } = settings;
+    const { dayBefore, dayOf, roundTypes: selectedRoundTypes = {} } = settings;
+
+    // End here if both notifications are turned offf
+    if (!dayBefore.enabled && !dayOf.enabled) return;
 
     for (const collection of binCollections) {
-      console.log(collection);
-      // Only schedule notifications for selected bin types
-      if (!roundTypes[collection.roundType.toLowerCase()]) {
-        continue;
-      }
+      const { date, roundTypes } = collection || {};
+      const collectionDate = new Date(date);
 
-      const collectionDate = new Date(collection.date);
+      // Filter to only the round types the user has selected
+      const collectionTypes = roundTypes.filter(
+        (type) => selectedRoundTypes[type.toLowerCase()]
+      );
+
+      // If none of the user's selected round types are present, skip
+      if (collectionTypes.length === 0) continue;
 
       // Day before notification
-      if (dayBefore.enabled) {
-        const dayBeforeDate = new Date(collectionDate);
-        dayBeforeDate.setDate(dayBeforeDate.getDate() - 1);
-        dayBeforeDate.setHours(new Date(dayBefore.time).getHours());
-        dayBeforeDate.setMinutes(new Date(dayBefore.time).getMinutes());
-
-        if (dayBeforeDate > new Date()) {
-          // Only schedule future notifications
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              title: "Bin Collection Tomorrow",
-              body: `Your ${collection.roundType} bin will be collected tomorrow. Please put it out before 7am.`,
-            },
-            trigger: dayBeforeDate,
-          });
-          console.log(
-            `Scheduled day before notification for ${collection.roundType} on ${dayBeforeDate}`
-          );
-        }
-      }
+      await addNotification({
+        offsetDays: 1,
+        config: dayBefore,
+        collectionDate,
+        collectionTypes,
+      });
 
       // Day of notification
-      if (dayOf.enabled) {
-        const dayOfDateObj = new Date(collectionDate);
-        dayOfDateObj.setHours(new Date(dayOf.time).getHours());
-        dayOfDateObj.setMinutes(new Date(dayOf.time).getMinutes());
-
-        if (dayOfDateObj > new Date()) {
-          // Only schedule future notifications
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              title: "Bin Collection Today",
-              body: `Your ${collection.roundType} bin will be collected today. Make sure it's outside!`,
-            },
-            trigger: dayOfDateObj,
-          });
-          console.log(
-            `Scheduled day of notification for ${collection.roundType} on ${dayOfDateObj}`
-          );
-        }
-      }
+      await addNotification({
+        offsetDays: 0,
+        config: dayOf,
+        collectionDate,
+        collectionTypes,
+      });
     }
 
-    // Schedule a test notification for debugging
+    const notificationRefreshDate = new Date(FURTHEST_DATE);
+    notificationRefreshDate.setDate(notificationRefreshDate.getDate() + 1);
+
+    // Refresh notification
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Test Notification",
-        body: `This is a test notification scheduled right after setup`,
+        title: "Time to refresh your bin schedule",
+        body: "Your bin collection dates may have changed. Please open the app to get the latest updates.",
       },
-      trigger: new Date(Date.now() + 5 * 1000),
+      trigger: { type: "date", date: notificationRefreshDate },
     });
 
     return true;
@@ -91,6 +74,52 @@ async function addNotification(settings, binCollections = []) {
     console.error("Scheduling error:", error);
     return false;
   }
+}
+
+async function addNotification({
+  offsetDays = 0,
+  config,
+  collectionDate,
+  collectionTypes,
+}) {
+  if (!config?.enabled) return;
+
+  const triggerDate = new Date(collectionDate);
+  triggerDate.setDate(triggerDate.getDate() - offsetDays);
+
+  const time = new Date(config.time);
+  triggerDate.setHours(time.getHours());
+  triggerDate.setMinutes(time.getMinutes());
+
+  // Save the furthest date in the future
+  if (!FURTHEST_DATE || triggerDate > FURTHEST_DATE) {
+    FURTHEST_DATE = triggerDate;
+  }
+
+  if (triggerDate < new Date()) return;
+
+  // Convert collection types to just be colours and join
+  const typeList = collectionTypes
+    .map((type) => getBinColour(type))
+    .join(" and ");
+  const plural = collectionTypes.length > 1 ? "bins" : "bin";
+
+  const title =
+    offsetDays === 0 ? "Bin Collection Today" : "Bin Collection Tomorrow";
+
+  const message =
+    offsetDays === 0
+      ? `Your ${typeList} ${plural} will be collected today. Make sure ${
+          collectionTypes.length > 1 ? "they're" : "it's"
+        } outside!`
+      : `Your ${typeList} ${plural} will be collected tomorrow. Please put ${
+          collectionTypes.length > 1 ? "them" : "it"
+        } out before 7am.`;
+
+  await Notifications.scheduleNotificationAsync({
+    content: { title, body: message },
+    trigger: { type: "date", date: triggerDate },
+  });
 }
 
 export default function ManageNotifications() {
@@ -108,9 +137,9 @@ export default function ManageNotifications() {
   );
   const [dayOfTime, setDayOfTime] = useState(new Date().setHours(7, 0, 0, 0));
   const [roundTypes, setRoundTypes] = useState({
-    black: true,
-    green: true,
-    brown: true,
+    domestic: true,
+    recycle: true,
+    organic: true,
   });
 
   // Time picker state
@@ -126,12 +155,13 @@ export default function ManageNotifications() {
     }
   }, [settingsChanged]);
 
+  // Configure notification handler when component mounts
   useEffect(() => {
-    // Configure notification handler when component mounts
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
+        shouldShowBanner: true, // shows a banner when app is in foreground
+        shouldShowList: true, // adds notification to notification centre
+        shouldPlaySound: false,
         shouldSetBadge: false,
       }),
     });
@@ -210,10 +240,15 @@ export default function ManageNotifications() {
       roundTypes,
     };
 
-    const success = await addNotification(settings, binCollections);
+    const success = await addNotifications(settings, binCollections);
     if (success) {
       console.log("Notifications updated successfully");
     }
+
+    const notifications =
+      await Notifications.getAllScheduledNotificationsAsync();
+    // console.log("Currently scheduled notifications:", notifications);
+    console.log(notifications.length);
   };
 
   // Loading state
@@ -227,7 +262,6 @@ export default function ManageNotifications() {
     );
   }
 
-  console.log(showDayBeforePicker);
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar barStyle="dark-content" />
@@ -257,15 +291,6 @@ export default function ManageNotifications() {
               }`}>
               Time
             </Text>
-            <Text
-              className={`text-base ${
-                dayBeforeEnabled ? "text-gray-800" : "text-gray-300"
-              }`}>
-              {formatTime(dayBeforeTime)}
-            </Text>
-          </TouchableOpacity>
-
-          {showDayBeforePicker && (
             <DateTimePicker
               value={new Date(dayBeforeTime)}
               mode="time"
@@ -274,11 +299,11 @@ export default function ManageNotifications() {
               onChange={onChangeDayBeforeTime}
               disabled={!dayBeforeEnabled}
             />
-          )}
+          </TouchableOpacity>
         </View>
 
         {/* Day of collection */}
-        {/* <View className="bg-white rounded-xl mb-6 overflow-hidden shadow">
+        <View className="bg-white rounded-xl mb-2 overflow-hidden shadow">
           <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
             <Text className="text-gray-800 text-base">Day of collection</Text>
             <Switch
@@ -324,36 +349,42 @@ export default function ManageNotifications() {
           Note: Bins should be placed out by 7am.
         </Text>
 
-        <Text className="text-gray-500 text-sm font-medium mb-2 ml-2 uppercase">
+        <Text className="text-gray-500 text-sm font-medium mb-2 ml-2">
           Bin Types
-        </Text> */}
+        </Text>
 
         {/* Bin types selection */}
-        <View className="bg-white rounded-xl mb-6 overflow-hidden shadow">
+        <View className="bg-white rounded-xl mb-2 overflow-hidden shadow">
           <TouchableOpacity
-            className="flex-row justify-between items-center p-4 border-b border-gray-100"
-            onPress={() => toggleRoundType("black")}>
-            <Text className="text-gray-800 text-base">Black</Text>
-            {roundTypes.black && (
-              <Text className="text-blue-500 text-xl">✓</Text>
+            className="flex-row justify-between items-center border-b border-gray-100"
+            onPress={() => toggleRoundType("domestic")}>
+            <Text className="text-gray-800 text-base p-4">
+              Black (general waste)
+            </Text>
+            {roundTypes.domestic && (
+              <Text className="text-blue-500 text-2xl pr-4">✓</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="flex-row justify-between items-center p-4 border-b border-gray-100"
-            onPress={() => toggleRoundType("green")}>
-            <Text className="text-gray-800 text-base">Green</Text>
-            {roundTypes.green && (
-              <Text className="text-blue-500 text-xl">✓</Text>
+            className="flex-row justify-between items-center border-b border-gray-100"
+            onPress={() => toggleRoundType("organic")}>
+            <Text className="text-gray-800 text-base p-4">
+              Green (food waste)
+            </Text>
+            {roundTypes.organic && (
+              <Text className="text-blue-500 text-2xl pr-4">✓</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="flex-row justify-between items-center p-4"
-            onPress={() => toggleRoundType("brown")}>
-            <Text className="text-gray-800 text-base">Brown</Text>
-            {roundTypes.brown && (
-              <Text className="text-blue-500 text-xl">✓</Text>
+            className="flex-row justify-between items-center"
+            onPress={() => toggleRoundType("recycle")}>
+            <Text className="text-gray-800 text-base p-4">
+              Blue (recyclables)
+            </Text>
+            {roundTypes.recycle && (
+              <Text className="text-blue-500 text-2xl pr-4">✓</Text>
             )}
           </TouchableOpacity>
         </View>
