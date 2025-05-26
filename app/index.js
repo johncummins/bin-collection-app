@@ -15,7 +15,7 @@ const BinCollectionScreen = () => {
   const router = useRouter(); // Initialize router
   const navigation = useNavigation();
 
-  const [binData, setBinData] = useState(null);
+  const [binCollections, setBinCollections] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -36,15 +36,12 @@ const BinCollectionScreen = () => {
 
         // Fetch fresh data
         const response = await fetch(
-          `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC&numberOfCollections=12`
+          `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC`
         );
 
         let { collections = [] } = await response.json();
 
-        collections = collections.slice(0, 6);
-
-        // Set first 6 collections to binData
-        setBinData(collections);
+        setBinCollections(collections);
       } catch (err) {
         setError(`Failed to fetch bin collection data... ${err}`);
       } finally {
@@ -125,6 +122,8 @@ const BinCollectionScreen = () => {
     );
   };
 
+  const visibleBinCollections = binCollections.slice(0, 6);
+
   return (
     <View className="flex-1 p-6">
       <View className="flex-row justify-between items-center mb-4">
@@ -146,7 +145,7 @@ const BinCollectionScreen = () => {
         </Text> */}
         <Carousel
           width={cardWidth}
-          data={binData}
+          data={visibleBinCollections}
           pagingEnabled={true}
           snapEnabled={true}
           height={cardHeight}
@@ -157,7 +156,7 @@ const BinCollectionScreen = () => {
 
         {/* Pagination dots */}
         <View className="flex-row justify-center mt-8">
-          {binData.map((_, index) => (
+          {visibleBinCollections.map((_, index) => (
             <View
               key={index}
               className={`h-3 w-3 rounded-full mx-2 ${
@@ -174,7 +173,7 @@ const BinCollectionScreen = () => {
           size="xl"
           onPress={() => {
             navigation.navigate("ManageNotifications", {
-              data: binData,
+              data: binCollections,
             });
           }}>
           <ButtonText>Manage Notifications</ButtonText>
