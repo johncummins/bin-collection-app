@@ -15,11 +15,14 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { getBinColour } from "./HelperFunctions"; // Importing the function
 
-let FURTHEST_DATE = new Date();
+let FURTHEST_DATE = null;
 
 async function addNotifications(settings, binCollections = []) {
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
+
+    // Reset furthest date
+    FURTHEST_DATE = null;
 
     if (binCollections.length === 0) return console.log("No collection dates");
 
@@ -56,6 +59,8 @@ async function addNotifications(settings, binCollections = []) {
         collectionTypes,
       });
     }
+
+    if (FURTHEST_DATE === null) return;
 
     const notificationRefreshDate = new Date(FURTHEST_DATE);
     notificationRefreshDate.setDate(notificationRefreshDate.getDate() + 1);
@@ -133,7 +138,7 @@ export default function ManageNotifications() {
   const [dayBeforeEnabled, setDayBeforeEnabled] = useState(true);
   const [dayOfEnabled, setDayOfEnabled] = useState(true);
   const [dayBeforeTime, setDayBeforeTime] = useState(
-    new Date().setHours(1, 0, 0, 0)
+    new Date().setHours(21, 0, 0, 0)
   );
   const [dayOfTime, setDayOfTime] = useState(new Date().setHours(7, 0, 0, 0));
   const [roundTypes, setRoundTypes] = useState({
@@ -143,8 +148,6 @@ export default function ManageNotifications() {
   });
 
   // Time picker state
-  const [showDayBeforePicker, setShowDayBeforePicker] = useState(false);
-  const [showDayOfPicker, setShowDayOfPicker] = useState(false);
   const [settingsChanged, setSettingsChanged] = useState(false);
 
   // Handle automatic updates when settings change
@@ -205,7 +208,6 @@ export default function ManageNotifications() {
   // Handle day before time change
   const onChangeDayBeforeTime = (event, selectedDate) => {
     const currentDate = selectedDate || new Date(dayBeforeTime);
-    setShowDayBeforePicker(true);
     setDayBeforeTime(currentDate.getTime());
     setSettingsChanged(true);
   };
@@ -213,7 +215,6 @@ export default function ManageNotifications() {
   // Handle day of time change
   const onChangeDayOfTime = (event, selectedDate) => {
     const currentDate = selectedDate || new Date(dayOfTime);
-    setShowDayOfPicker(true);
     setDayOfTime(currentDate.getTime());
     setSettingsChanged(true);
   };
@@ -255,7 +256,7 @@ export default function ManageNotifications() {
   if (!binCollections) {
     return (
       <View className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-gray-800 text-lg">
+        <Text className="text-gray-00 text-lg">
           No bin data available. Please go back and try again.
         </Text>
       </View>
@@ -270,9 +271,7 @@ export default function ManageNotifications() {
         {/* Day before collection */}
         <View className="bg-white rounded-xl mb-6 overflow-hidden shadow">
           <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
-            <Text className="text-gray-800 text-base">
-              Day before collection
-            </Text>
+            <Text className="text-gray-800 font-medium text-lg">Day before collection</Text>
             <Switch
               value={dayBeforeEnabled}
               onValueChange={toggleDayBefore}
@@ -282,12 +281,11 @@ export default function ManageNotifications() {
             />
           </View>
           <TouchableOpacity
-            className="flex-row justify-between items-center p-4"
-            disabled={!dayBeforeEnabled}
-            onPress={() => setShowDayBeforePicker(true)}>
+            className="flex-row justify-between items-center px-4 py-2"
+            disabled={!dayBeforeEnabled}>
             <Text
-              className={`text-base ${
-                dayBeforeEnabled ? "text-gray-800" : "text-gray-300"
+              className={`text-lg ${
+                dayBeforeEnabled ? "text-gray-800 font-medium" : "text-gray-300"
               }`}>
               Time
             </Text>
@@ -303,9 +301,9 @@ export default function ManageNotifications() {
         </View>
 
         {/* Day of collection */}
-        <View className="bg-white rounded-xl mb-2 overflow-hidden shadow">
+        <View className="bg-white rounded-xl mb-6 overflow-hidden shadow">
           <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
-            <Text className="text-gray-800 text-base">Day of collection</Text>
+            <Text className="text-gray-800 font-medium text-lg">Day of collection</Text>
             <Switch
               value={dayOfEnabled}
               onValueChange={toggleDayOf}
@@ -316,24 +314,14 @@ export default function ManageNotifications() {
           </View>
 
           <TouchableOpacity
-            className="flex-row justify-between items-center p-4"
-            disabled={!dayOfEnabled}
-            onPress={() => setShowDayOfPicker(true)}>
+            className="flex-row justify-between items-center px-4 py-2"
+            disabled={!dayOfEnabled}>
             <Text
-              className={`text-base ${
-                dayOfEnabled ? "text-gray-800" : "text-gray-300"
+              className={`text-lg ${
+                dayOfEnabled ? "text-gray-800 font-medium" : "text-gray-300"
               }`}>
               Time
             </Text>
-            <Text
-              className={`text-base ${
-                dayOfEnabled ? "text-gray-800" : "text-gray-300"
-              }`}>
-              {formatTime(dayOfTime)}
-            </Text>
-          </TouchableOpacity>
-
-          {showDayOfPicker && (
             <DateTimePicker
               value={new Date(dayOfTime)}
               mode="time"
@@ -342,23 +330,23 @@ export default function ManageNotifications() {
               onChange={onChangeDayOfTime}
               disabled={!dayOfEnabled}
             />
-          )}
+          </TouchableOpacity>
         </View>
 
-        <Text className="text-gray-500 text-sm mb-6 ml-2">
-          Note: Bins should be placed out by 7am.
-        </Text>
+        {/* <Text className="text-gray-500 text-sm mb-6 ml-2">
+          Note: Bins should be placed out by 7am
+        </Text> */}
 
-        <Text className="text-gray-500 text-sm font-medium mb-2 ml-2">
+        {/* <Text className="text-gray-500 text-sm font-medium mb-2 ml-2">
           Bin Types
-        </Text>
+        </Text> */}
 
         {/* Bin types selection */}
         <View className="bg-white rounded-xl mb-2 overflow-hidden shadow">
           <TouchableOpacity
             className="flex-row justify-between items-center border-b border-gray-100"
             onPress={() => toggleRoundType("domestic")}>
-            <Text className="text-gray-800 text-base p-4">
+            <Text className="text-gray-800 font-medium text-lg p-4">
               Black (general waste)
             </Text>
             {roundTypes.domestic && (
@@ -369,7 +357,7 @@ export default function ManageNotifications() {
           <TouchableOpacity
             className="flex-row justify-between items-center border-b border-gray-100"
             onPress={() => toggleRoundType("organic")}>
-            <Text className="text-gray-800 text-base p-4">
+            <Text className="text-gray-800 font-medium text-lg p-4">
               Green (food waste)
             </Text>
             {roundTypes.organic && (
@@ -380,7 +368,7 @@ export default function ManageNotifications() {
           <TouchableOpacity
             className="flex-row justify-between items-center"
             onPress={() => toggleRoundType("recycle")}>
-            <Text className="text-gray-800 text-base p-4">
+            <Text className="text-gray-800 font-medium text-lg p-4">
               Blue (recyclables)
             </Text>
             {roundTypes.recycle && (
@@ -390,7 +378,7 @@ export default function ManageNotifications() {
         </View>
 
         <Text className="text-gray-500 text-sm mb-6 ml-2">
-          Choose which bin types to receive notifications for.
+          Choose which bin types to receive notifications for
         </Text>
       </View>
     </SafeAreaView>
