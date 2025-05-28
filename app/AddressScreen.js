@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { View, Pressable, Text, ScrollView } from "react-native";
+import { View, Pressable, Text, ScrollView, Keyboard } from "react-native";
 import Input from "./components/Input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
@@ -120,7 +120,10 @@ export default function PostcodeScreen() {
           />
           <Button
             size="lg"
-            onPress={throttledFetchAddresses}
+            onPress={() => {
+              throttledFetchAddresses();
+              Keyboard.dismiss();
+            }}
             disabled={loading}>
             <ButtonText>
               {loading ? "Finding Your Address..." : "Find My Address"}

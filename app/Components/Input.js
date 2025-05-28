@@ -17,6 +17,7 @@ export default ({
         onChangeText={onChangeText}
         onSubmitEditing={onSubmitEditing}
         returnKeyType="search"
+        autoCapitalize="characters"
       />
     </Input>
   </>
