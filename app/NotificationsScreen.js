@@ -7,15 +7,30 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  Platform,
 } from "react-native";
-import { Button, ButtonText } from "@/components/ui/button";
 import * as Device from "expo-device";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { getBinColour } from "./utils/HelperFunctions"; // Importing the function
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 let FURTHEST_DATE = null;
+
+const DEFAULT_SETTINGS = {
+  dayBefore: {
+    enabled: true,
+    time: new Date().setHours(21, 0, 0, 0),
+  },
+  dayOf: {
+    enabled: true,
+    time: new Date().setHours(7, 0, 0, 0),
+  },
+  roundTypes: {
+    domestic: true,
+    recycle: true,
+    organic: true,
+  },
+};
 
 async function addNotifications(settings, binCollections = []) {
   try {
@@ -129,10 +144,8 @@ async function addNotification({
 
 export default function NotificationsScreen() {
   const route = useRoute();
-
-  const [binCollections, setBinCollections] = useState(
-    route.params?.data ?? null
-  );
+  const [binCollections] = useState(route.params?.data ?? null);
+  const [settingsChanged, setSettingsChanged] = useState(false);
 
   // Notification settings state
   const [dayBeforeEnabled, setDayBeforeEnabled] = useState(true);
@@ -147,53 +160,82 @@ export default function NotificationsScreen() {
     organic: true,
   });
 
-  // Time picker state
-  const [settingsChanged, setSettingsChanged] = useState(false);
-
-  // Handle automatic updates when settings change
+  // Configure notification handler and run the init function
   useEffect(() => {
-    if (settingsChanged) {
-      updateNotificationSchedules();
-      setSettingsChanged(false);
-    }
-  }, [settingsChanged]);
-
-  // Configure notification handler when component mounts
-  useEffect(() => {
+    // Set up notification handler
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowBanner: true, // shows a banner when app is in foreground
-        shouldShowList: true, // adds notification to notification centre
+        shouldShowBanner: true,
+        shouldShowList: true,
         shouldPlaySound: false,
         shouldSetBadge: false,
       }),
     });
 
-    // Request permission for notifications
-    const requestNotificationPermissions = async () => {
-      if (Device.isDevice) {
-        const { status } = await Notifications.requestPermissionsAsync();
-        return status === "granted";
-      }
-      return false;
-    };
-
-    requestNotificationPermissions();
-
-    // Initial notification setup
-    updateNotificationSchedules();
+    // Immediately call an async function
+    init();
   }, []);
 
-  // Format time for display
-  const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+  const init = async () => {
+    // Request notification permissions
+    if (Device.isDevice) {
+      const { status } = await Notifications.requestPermissionsAsync();
+    }
+
+    let savedSettings = await AsyncStorage.getItem("settings");
+
+    savedSettings = savedSettings ? JSON.parse(savedSettings) : null;
+
+    setupInitialSettingsState(savedSettings);
   };
 
-  // Toggle bin type selection
+  const setupInitialSettingsState = (settings) => {
+    // Day before settings
+    setDayBeforeEnabled(
+      settings?.dayBefore?.enabled ?? DEFAULT_SETTINGS.dayBefore.enabled
+    );
+    setDayBeforeTime(
+      settings?.dayBefore?.time ?? DEFAULT_SETTINGS.dayBefore.time
+    );
+
+    // Day of settings
+    setDayOfEnabled(settings?.dayOf?.enabled ?? DEFAULT_SETTINGS.dayOf.enabled);
+    setDayOfTime(settings?.dayOf?.time ?? DEFAULT_SETTINGS.dayOf.time);
+
+    // Round types settings
+    setRoundTypes(settings?.roundTypes ?? DEFAULT_SETTINGS.roundTypes);
+  };
+
+  // Handle automatic updates when settings change
+  useEffect(() => {
+    if (settingsChanged) {
+      const newSettings = {
+        dayBefore: { enabled: dayBeforeEnabled, time: dayBeforeTime },
+        dayOf: { enabled: dayOfEnabled, time: dayOfTime },
+        roundTypes,
+      };
+
+      handleNotifications(newSettings);
+
+      setSettingsChanged(false);
+    }
+  }, [settingsChanged]);
+
+  const handleNotifications = async (settings = null) => {
+    if (!binCollections || !settings) return;
+
+    await AsyncStorage.setItem("settings", JSON.stringify(settings));
+
+    const success = await addNotifications(settings, binCollections);
+
+    const notifications =
+      await Notifications.getAllScheduledNotificationsAsync();
+
+    if (success) {
+      console.log(`${notifications.length} Notifications added`);
+    }
+  };
+
   const toggleRoundType = (type) => {
     setRoundTypes((prev) => {
       const newState = {
@@ -205,51 +247,26 @@ export default function NotificationsScreen() {
     });
   };
 
-  // Handle day before time change
   const onChangeDayBeforeTime = (event, selectedDate) => {
     const currentDate = selectedDate || new Date(dayBeforeTime);
     setDayBeforeTime(currentDate.getTime());
     setSettingsChanged(true);
   };
 
-  // Handle day of time change
   const onChangeDayOfTime = (event, selectedDate) => {
     const currentDate = selectedDate || new Date(dayOfTime);
     setDayOfTime(currentDate.getTime());
     setSettingsChanged(true);
   };
 
-  // Toggle day before notifications
   const toggleDayBefore = (value) => {
     setDayBeforeEnabled(value);
     setSettingsChanged(true);
   };
 
-  // Toggle day of notifications
   const toggleDayOf = (value) => {
     setDayOfEnabled(value);
     setSettingsChanged(true);
-  };
-
-  // Update notification schedules
-  const updateNotificationSchedules = async () => {
-    if (!binCollections) return;
-
-    const settings = {
-      dayBefore: { enabled: dayBeforeEnabled, time: dayBeforeTime },
-      dayOf: { enabled: dayOfEnabled, time: dayOfTime },
-      roundTypes,
-    };
-
-    const success = await addNotifications(settings, binCollections);
-    if (success) {
-      console.log("Notifications updated successfully");
-    }
-
-    const notifications =
-      await Notifications.getAllScheduledNotificationsAsync();
-    // console.log("Currently scheduled notifications:", notifications);
-    console.log(notifications.length);
   };
 
   // Loading state
@@ -264,7 +281,7 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 ">
       <StatusBar barStyle="dark-content" />
 
       <View className="px-4 py-4">
