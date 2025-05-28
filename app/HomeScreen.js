@@ -7,9 +7,9 @@ import Carousel from "react-native-reanimated-carousel";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Badge, BadgeIcon, BadgeText } from "@/components/ui/badge";
 import { Heading } from "@/components/ui/heading";
-import CollectionBinIcon from "./Components/CollectionBinIcon";
+import CollectionBinIcon from "./components/CollectionBinIcon";
 import { capitalize } from "lodash";
-import { getDateWithSuffix, getBinName, getBinColour } from "./HelperFunctions"; // Importing the function
+import { getDateWithSuffix, getBinName, getBinColour } from "./utils/HelperFunctions"; // Importing the function
 
 const BinCollectionScreen = () => {
   const router = useRouter(); // Initialize router
@@ -172,7 +172,7 @@ const BinCollectionScreen = () => {
         <Button
           size="xl"
           onPress={() => {
-            navigation.navigate("ManageNotifications", {
+            navigation.navigate("NotificationsScreen", {
               data: binCollections,
             });
           }}>

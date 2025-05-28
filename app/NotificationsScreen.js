@@ -13,7 +13,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 import * as Device from "expo-device";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { getBinColour } from "./HelperFunctions"; // Importing the function
+import { getBinColour } from "./utils/HelperFunctions"; // Importing the function
 
 let FURTHEST_DATE = null;
 
@@ -127,7 +127,7 @@ async function addNotification({
   });
 }
 
-export default function ManageNotifications() {
+export default function NotificationsScreen() {
   const route = useRoute();
 
   const [binCollections, setBinCollections] = useState(
@@ -271,7 +271,9 @@ export default function ManageNotifications() {
         {/* Day before collection */}
         <View className="bg-white rounded-xl mb-6 overflow-hidden shadow">
           <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
-            <Text className="text-gray-800 font-medium text-lg">Day before collection</Text>
+            <Text className="text-gray-800 font-medium text-lg">
+              Day before collection
+            </Text>
             <Switch
               value={dayBeforeEnabled}
               onValueChange={toggleDayBefore}
@@ -303,7 +305,9 @@ export default function ManageNotifications() {
         {/* Day of collection */}
         <View className="bg-white rounded-xl mb-6 overflow-hidden shadow">
           <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
-            <Text className="text-gray-800 font-medium text-lg">Day of collection</Text>
+            <Text className="text-gray-800 font-medium text-lg">
+              Day of collection
+            </Text>
             <Switch
               value={dayOfEnabled}
               onValueChange={toggleDayOf}

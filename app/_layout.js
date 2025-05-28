@@ -13,9 +13,9 @@ export default function RootLayout() {
           headerShadowVisible: false,
         }}>
         <Stack.Screen name="AddressScreen" options={{ title: "" }} />
-        <Stack.Screen name="index" options={{ title: "" }} />
+        <Stack.Screen name="HomeScreen" options={{ title: "" }} />
         <Stack.Screen
-          name="ManageNotifications"
+          name="NotificationsScreen"
           options={{ title: "Notifications" }}
         />
       </Stack>

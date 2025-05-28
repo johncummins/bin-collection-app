@@ -1,13 +1,13 @@
 import { useState, useCallback } from "react";
 import { View, Pressable, Text, ScrollView } from "react-native";
-import Input from "./Components/Input";
+import Input from "./components/Input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Table, TableBody, TableRow, TableData } from "@/components/ui/table";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { capitalize, throttle } from "lodash";
-import CollectionBinIcon from "./Components/CollectionBinIcon";
+import CollectionBinIcon from "./components/CollectionBinIcon";
 
 export default function PostcodeScreen() {
   const [postcode, setPostcode] = useState("");
@@ -76,8 +76,7 @@ export default function PostcodeScreen() {
     try {
       await AsyncStorage.setItem("address", JSON.stringify(addressObject));
 
-      // Go to home page
-      router.replace("/");
+      router.replace("/HomeScreen");
     } catch (error) {
       console.error("Error saving address ID:", error);
     }
