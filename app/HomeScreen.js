@@ -1,17 +1,20 @@
 import { View, Text, Dimensions, ActivityIndicator } from "react-native";
-import { useEffect, useState, navigation } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import Carousel from "react-native-reanimated-carousel";
 import { Button, ButtonText } from "@/components/ui/button";
-import { Badge, BadgeIcon, BadgeText } from "@/components/ui/badge";
+import { Badge, BadgeText } from "@/components/ui/badge";
 import { Heading } from "@/components/ui/heading";
 import CollectionBinIcon from "./components/CollectionBinIcon";
-import { capitalize } from "lodash";
-import { getDateWithSuffix, getBinName, getBinColour } from "./utils/HelperFunctions"; // Importing the function
+import {
+  getDateWithSuffix,
+  getBinName,
+  getBinColour,
+} from "./utils/HelperFunctions";
 
-const BinCollectionScreen = () => {
+const HomeScreen = () => {
   const router = useRouter(); // Initialize router
   const navigation = useNavigation();
 
@@ -183,4 +186,4 @@ const BinCollectionScreen = () => {
   );
 };
 
-export default BinCollectionScreen;
+export default HomeScreen;
