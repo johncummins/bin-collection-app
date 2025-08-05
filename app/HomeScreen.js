@@ -13,12 +13,16 @@ import {
   getBinName,
   getBinColour,
 } from "./utils/HelperFunctions";
+import {
+  addNotifications,
+  setupNotifications,
+} from "./utils/NotificationHelperFunctions";
 
 const HomeScreen = () => {
   const router = useRouter(); // Initialize router
   const navigation = useNavigation();
 
-  const [binCollections, setBinCollections] = useState(null);
+  const [binCollections, setBinCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -45,6 +49,14 @@ const HomeScreen = () => {
         let { collections = [] } = await response.json();
 
         setBinCollections(collections);
+
+        let savedSettings = await AsyncStorage.getItem("settings");
+
+        savedSettings = savedSettings ? JSON.parse(savedSettings) : null;
+
+        await setupNotifications();
+
+        await addNotifications(savedSettings, collections);
       } catch (err) {
         setError(`Failed to fetch bin collection data... ${err}`);
       } finally {

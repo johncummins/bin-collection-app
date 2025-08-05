@@ -68,17 +68,14 @@ export default function PostcodeScreen() {
   const handleRowClick = async ({ id: addressId, address }) => {
     setSelectedRowId(selectedRowId === addressId ? null : addressId);
 
-    const addressObject = {
-      id: addressId,
-      address: address,
-    };
+    const addressObject = { id: addressId, address: address };
 
     try {
       await AsyncStorage.setItem("address", JSON.stringify(addressObject));
 
       router.replace("/HomeScreen");
     } catch (error) {
-      console.error("Error saving address ID:", error);
+      console.log("Error saving address ID:", error);
     }
   };
 
