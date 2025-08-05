@@ -1,4 +1,8 @@
-const binColours = { domestic: "black", organic: "green", recycle: "blue" };
+const binColours = {
+  domestic: "#000000",
+  organic: "#026928",
+  recycle: "#0D47A1",
+};
 
 const binNames = {
   domestic: "General Waste",
@@ -29,6 +33,6 @@ export function getBinColour(roundType) {
 
 export function getBinName(roundType) {
   if (!roundType) return "";
-  
+
   return binNames[roundType.toLowerCase()];
 }
