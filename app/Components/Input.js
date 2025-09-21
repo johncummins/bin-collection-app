@@ -7,6 +7,9 @@ export default ({
   value,
   onChangeText,
   onSubmitEditing,
+  textContentType,
+  autoComplete,
+  ...props
 }) => (
   <>
     {label && <Text className="text-lg font-semibold">{label}</Text>}
@@ -18,6 +21,9 @@ export default ({
         onSubmitEditing={onSubmitEditing}
         returnKeyType="search"
         autoCapitalize="characters"
+        textContentType={textContentType}
+        autoComplete={autoComplete}
+        {...props}
       />
     </Input>
   </>
