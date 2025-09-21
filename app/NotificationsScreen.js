@@ -137,16 +137,13 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background-0">
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView className="flex-1">
+      <StatusBar />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-6">
-          <Heading size="2xl" className="mb-6 text-typography-900">
-            Notification Settings
-          </Heading>
           {/* Day before collection */}
-          <View className="bg-background-0 rounded-lg shadow-soft-1 mb-6 ">
+          <View className="bg-white rounded-lg mb-6 ">
             <View className="flex-row justify-between items-center p-4 border-b border-outline-200">
               <View className="flex-1">
                 <Text className="text-typography-800 font-medium text-lg">
@@ -187,7 +184,7 @@ export default function NotificationsScreen() {
           </View>
 
           {/* Day of collection */}
-          <View className="bg-background-0 rounded-lg shadow-soft-1 mb-6 ">
+          <View className="bg-white rounded-lg mb-6 ">
             <View className="flex-row justify-between items-center p-4 border-b border-outline-200">
               <View className="flex-1">
                 <Text className="text-typography-800 font-medium text-lg">
@@ -237,7 +234,7 @@ export default function NotificationsScreen() {
         </Text> */}
 
           {/* Bin types selection */}
-          <View className="bg-background-0 rounded-lg shadow-soft-1 mb-4 ">
+          <View className="bg-white rounded-lg mb-4 ">
             <View className="p-4 border-b border-outline-200">
               <Text className="text-typography-800 font-medium text-lg">
                 Bin Types
