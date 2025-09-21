@@ -80,25 +80,23 @@ export default function PostcodeScreen() {
   };
 
   const tableRows = addresses.map(
-    ({ houseNumber, street, town, postCode, id }) => {
+    ({ houseNumber, street, town, postCode, id }, index) => {
       const address = `${capitalize(houseNumber)} ${capitalize(street)}`;
       return (
         <Pressable
           key={id}
           onPress={() => handleRowClick({ id, address })}
-          className={`border-outline-200 ${
-            selectedRowId === id ? "bg-gray-100" : "bg-background-0"
+          className={`${selectedRowId === id ? "bg-blue-50" : "bg-white"} ${
+            index < addresses.length - 1 ? "border-b border-gray-200" : ""
           }`}>
-          <TableRow>
-            <TableData>
-              <View className="w-full">
-                <Text>{address}</Text>
-                <Text className="text-gray-500 mt-2">
-                  {capitalize(town)}, {postCode}
-                </Text>
-              </View>
-            </TableData>
-          </TableRow>
+          <View className="px-4 py-4">
+            <Text className="text-lg font-medium text-gray-900 mb-1">
+              {address}
+            </Text>
+            <Text className="text-sm text-gray-500">
+              {capitalize(town)}, {postCode}
+            </Text>
+          </View>
         </Pressable>
       );
     }
@@ -114,6 +112,8 @@ export default function PostcodeScreen() {
             value={postcode}
             onChangeText={(text) => setPostcode(text)}
             onSubmitEditing={throttledFetchAddresses}
+            textContentType="postalCode"
+            autoComplete="postal-code"
           />
           <Button
             size="lg"
@@ -143,13 +143,14 @@ export default function PostcodeScreen() {
       {/* Address List */}
       {addresses.length > 0 && (
         <View className="flex-1 px-6 pt-6">
-          <Text className="text-lg font-semibold pb-2">
+          <Text className="text-lg font-semibold pb-4 text-gray-800">
             Select your address
           </Text>
-          <ScrollView className="flex-1">
-            <Table>
-              <TableBody>{tableRows}</TableBody>
-            </Table>
+          <ScrollView
+            className="bg-white rounded-lg border border-gray-200"
+            style={{ maxHeight: Math.min(addresses.length * 80 + 40, 400) }}
+            showsVerticalScrollIndicator={false}>
+            {tableRows}
           </ScrollView>
         </View>
       )}
