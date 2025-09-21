@@ -48,7 +48,17 @@ const HomeScreen = () => {
 
         let { collections = [] } = await response.json();
 
-        setBinCollections(collections);
+        // Filter out past collections - only show future ones
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+        const futureCollections = collections.filter((collection) => {
+          const collectionDate = new Date(collection.date);
+          collectionDate.setHours(0, 0, 0, 0); // Reset time to start of day
+          return collectionDate >= today;
+        });
+
+        setBinCollections(futureCollections);
 
         let savedSettings = await AsyncStorage.getItem("settings");
 
@@ -56,7 +66,7 @@ const HomeScreen = () => {
 
         await setupNotifications();
 
-        await addNotifications(savedSettings, collections);
+        await addNotifications(savedSettings, futureCollections);
       } catch (err) {
         setError(`Failed to fetch bin collection data... ${err}`);
       } finally {
