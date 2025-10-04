@@ -10,6 +10,12 @@ const binNames = {
   recycle: "Recyclables",
 };
 
+const binColorNames = {
+  domestic: "black",
+  organic: "green",
+  recycle: "blue",
+};
+
 export function getDateWithSuffix(date) {
   const day = date.getDate();
   let suffix = "th";
@@ -35,4 +41,10 @@ export function getBinName(roundType) {
   if (!roundType) return "";
 
   return binNames[roundType.toLowerCase()];
+}
+
+export function getBinColorName(roundType) {
+  if (!roundType) return "";
+
+  return binColorNames[roundType.toLowerCase()];
 }

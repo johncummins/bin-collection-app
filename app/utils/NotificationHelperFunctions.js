@@ -1,4 +1,4 @@
-import { getBinColour } from "./HelperFunctions"; // Importing the function
+import { getBinColorName } from "./HelperFunctions"; // Importing the function
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 
@@ -142,9 +142,9 @@ async function addNotification({
 
   if (triggerDate < new Date()) return;
 
-  // Convert collection types to just be colours and join
+  // Convert collection types to color names and join
   const typeList = collectionTypes
-    .map((type) => getBinColour(type))
+    .map((type) => getBinColorName(type))
     .join(" and ");
   const plural = collectionTypes.length > 1 ? "bins" : "bin";
 

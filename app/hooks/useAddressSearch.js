@@ -24,7 +24,7 @@ export const useAddressSearch = () => {
 
     // Validate postcode format
     if (!postcodeRegex.test(postcode.trim())) {
-      setValidationError("Please enter a valid UK postcode");
+      setValidationError("Please enter a valid Cambridge postcode");
       setAddresses([]);
       return;
     }
@@ -47,7 +47,9 @@ export const useAddressSearch = () => {
       const data = await response.json();
 
       if (!data.length || data[0].id < 0) {
-        setValidationError("No addresses found for this postcode");
+        setValidationError(
+          "No addresses found for this postcode. Please ensure you're entering a Cambridge area postcode."
+        );
         setAddresses([]);
         setLoading(false);
         return;

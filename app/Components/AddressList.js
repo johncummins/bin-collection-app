@@ -15,7 +15,7 @@ export default function AddressList({
           onPress={() => onAddressSelect({ id, address })}
           className={`${selectedRowId === id ? "bg-blue-50" : "bg-white"} ${
             index < addresses.length - 1 ? "border-b border-gray-200" : ""
-          }`}>
+          } rounded-lg`}>
           <View className="px-4 py-4">
             <Text className="text-lg font-medium text-gray-900 mb-1">
               {address}
