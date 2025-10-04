@@ -2,7 +2,6 @@ import {
   View,
   Text,
   Dimensions,
-  ActivityIndicator,
   Alert,
   TouchableOpacity,
   RefreshControl,
@@ -11,12 +10,12 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
 import Carousel from "react-native-reanimated-carousel";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Heading } from "@/components/ui/heading";
 import CollectionBinIcon from "./components/CollectionBinIcon";
+import NotificationsModal from "./components/NotificationsModal";
 import Toast from "react-native-toast-message";
 import {
   getDateWithSuffix,
@@ -30,7 +29,6 @@ import {
 
 const HomeScreen = () => {
   const router = useRouter(); // Initialize router
-  const navigation = useNavigation();
 
   const [binCollections, setBinCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +36,8 @@ const HomeScreen = () => {
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [addressName, setAddressName] = useState("");
+  const [notificationsModalVisible, setNotificationsModalVisible] =
+    useState(false);
 
   const fetchBinData = async (isRefresh = false) => {
     try {
@@ -348,18 +348,19 @@ const HomeScreen = () => {
 
       {/* Button at the bottom */}
       <View className="pb-20 px-6">
-        <Button
-          size="xl"
-          onPress={() => {
-            navigation.navigate("notifications-screen", {
-              data: binCollections,
-            });
-          }}>
+        <Button size="xl" onPress={() => setNotificationsModalVisible(true)}>
           <ButtonText>Manage Notifications</ButtonText>
         </Button>
       </View>
 
       <Toast />
+
+      {/* Notifications Modal */}
+      <NotificationsModal
+        visible={notificationsModalVisible}
+        onClose={() => setNotificationsModalVisible(false)}
+        binCollections={binCollections}
+      />
     </View>
   );
 };

@@ -14,10 +14,6 @@ export default function RootLayout() {
         }}>
         <Stack.Screen name="address-screen" options={{ title: "" }} />
         <Stack.Screen name="home-screen" options={{ title: "" }} />
-        <Stack.Screen
-          name="notifications-screen"
-          options={{ title: "Notifications" }}
-        />
       </Stack>
     </GluestackUIProvider>
   );
