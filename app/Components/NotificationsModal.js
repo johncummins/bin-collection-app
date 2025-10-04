@@ -206,6 +206,8 @@ export default function NotificationsModal({
                 borderRadius: 10,
                 marginBottom: 16,
                 overflow: "hidden",
+                borderColor: "#E5E7EB",
+                borderWidth: 1,
               }}>
               <View
                 style={{
@@ -281,6 +283,8 @@ export default function NotificationsModal({
                 borderRadius: 10,
                 marginBottom: 16,
                 overflow: "hidden",
+                borderColor: "#E5E7EB",
+                borderWidth: 1,
               }}>
               <View
                 style={{
@@ -356,6 +360,8 @@ export default function NotificationsModal({
                 borderRadius: 10,
                 marginBottom: 16,
                 overflow: "hidden",
+                borderColor: "#E5E7EB",
+                borderWidth: 1,
               }}>
               <View
                 style={{
