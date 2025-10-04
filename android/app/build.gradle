@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.bincollectionapp'
+    namespace 'com.cummins.bin-collection-app'
     defaultConfig {
-        applicationId 'com.anonymous.bincollectionapp'
+        applicationId 'com.cummins.bin-collection-app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -17,7 +17,7 @@
         "foregroundImage": "./assets/images/WheelieBin.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.bincollectionapp"
+      "package": "com.cummins.bin-collection-app"
     },
     "web": {
       "bundler": "metro",
