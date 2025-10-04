@@ -2,10 +2,10 @@ import {
   View,
   Text,
   Dimensions,
-  TouchableOpacity,
   RefreshControl,
   ScrollView,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 // import { useRouter } from "expo-router"; // Temporarily disabled for testing
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -39,6 +39,7 @@ const HomeScreen = () => {
   const [notificationsModalVisible, setNotificationsModalVisible] =
     useState(false);
   const [addressModalVisible, setAddressModalVisible] = useState(false);
+  const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
 
   const fetchBinData = async (isRefresh = false) => {
     try {
@@ -197,12 +198,16 @@ const HomeScreen = () => {
     );
   }
 
-  // Test Error UI - Simple version without complex dependencies
-  if (error ) {
+  // Error UI - Show when there's an actual error (but not during address updates)
+  if (error && !isUpdatingAddress) {
     return (
       <View
         style={{
-          flex: 1,
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           justifyContent: "center",
           alignItems: "center",
           backgroundColor: "#f9fafb",
@@ -226,12 +231,12 @@ const HomeScreen = () => {
           <View style={{ alignItems: "center", marginBottom: 24 }}>
             <View
               style={{
-                backgroundColor: "#fef2f2",
+                backgroundColor: "#f8fafc",
                 borderRadius: 50,
                 padding: 16,
                 marginBottom: 16,
               }}>
-              <Text style={{ color: "#dc2626", fontSize: 24 }}>⚠️</Text>
+              <Ionicons name="warning-outline" size={32} color="#64748b" />
             </View>
             <Text
               style={{
@@ -241,7 +246,7 @@ const HomeScreen = () => {
                 textAlign: "center",
                 marginBottom: 8,
               }}>
-              Unable to load data
+              Something went wrong
             </Text>
             <Text
               style={{
@@ -250,50 +255,26 @@ const HomeScreen = () => {
                 textAlign: "center",
                 lineHeight: 20,
               }}>
-              {error || "Something went wrong. Please try again."}
+              {error &&
+              (error.includes("connection") || error.includes("network"))
+                ? "Please check your internet connection and try again."
+                : error &&
+                  (error.includes("address") || error.includes("collection"))
+                ? "We couldn't find collection data for your address. Please try selecting a different address."
+                : "We couldn't load your bin schedule. Please try again."}
             </Text>
           </View>
 
           {/* Try Again Button */}
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#2563eb",
-              borderRadius: 12,
-              paddingVertical: 16,
-              paddingHorizontal: 24,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.1,
-              shadowRadius: 2,
-              elevation: 2,
-            }}
+          <Button
+            size="lg"
+            action="primary"
             onPress={() => {
-              console.log("Try Again pressed");
               setError(null);
-              setLoading(true);
-              // fetchBinData(); // Commented out to avoid any potential issues
+              fetchBinData();
             }}>
-            <Text
-              style={{
-                color: "white",
-                fontWeight: "600",
-                textAlign: "center",
-                fontSize: 16,
-              }}>
-              Try Again
-            </Text>
-          </TouchableOpacity>
-
-          {/* Additional Help Text */}
-          <Text
-            style={{
-              color: "#9ca3af",
-              fontSize: 12,
-              textAlign: "center",
-              marginTop: 16,
-            }}>
-            Check your internet connection and try again
-          </Text>
+            <ButtonText>Try Again</ButtonText>
+          </Button>
         </View>
       </View>
     );
@@ -315,7 +296,15 @@ const HomeScreen = () => {
       .replace(day, dateWithSuffix);
 
     return (
-      <View className="bg-white p-4 rounded-lg mx-6 flex-1 justify-center items-center">
+      <View
+        className="bg-white p-4 rounded-lg mx-6 my-6 flex-1 justify-center items-center"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 4,
+        }}>
         {/* Badge above the date */}
         {index === 0 && (
           <View className="flex-row justify-start w-full mb-4">
@@ -363,11 +352,19 @@ const HomeScreen = () => {
   const visibleBinCollections = binCollections.slice(0, 6);
 
   const handleAddressSelected = async (addressObject) => {
-    // Update the address name in the UI
-    setAddressName(addressObject.address);
+    // Set flag to prevent error UI from showing during address update
+    setIsUpdatingAddress(true);
 
-    // Refresh the bin data with the new address (as a background update, not a manual refresh)
-    await fetchBinData(false);
+    try {
+      // Update the address name in the UI
+      setAddressName(addressObject.address);
+
+      // Refresh the bin data with the new address (as a background update, not a manual refresh)
+      await fetchBinData(false);
+    } finally {
+      // Always clear the flag, even if there's an error
+      setIsUpdatingAddress(false);
+    }
   };
 
   return (
@@ -392,7 +389,11 @@ const HomeScreen = () => {
       <View className="flex-1 justify-center items-center">
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "center",
+            paddingVertical: 20,
+          }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
