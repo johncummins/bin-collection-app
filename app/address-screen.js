@@ -1,5 +1,12 @@
 import { useState, useCallback } from "react";
-import { View, Pressable, Text, ScrollView, Keyboard } from "react-native";
+import {
+  View,
+  Pressable,
+  Text,
+  ScrollView,
+  Keyboard,
+  Alert,
+} from "react-native";
 import Input from "./components/Input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
@@ -8,29 +15,38 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { capitalize, throttle } from "lodash";
 import CollectionBinIcon from "./components/CollectionBinIcon";
+import Toast from "react-native-toast-message";
 
 export default function PostcodeScreen() {
   const [postcode, setPostcode] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [validationError, setValidationError] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
   const router = useRouter();
 
   const fetchAddresses = async () => {
-    if (!postcode.trim()) return;
+    // Clear previous errors
+    setError(null);
+    setValidationError(null);
+
+    // Check for empty input
+    if (!postcode.trim()) {
+      setValidationError("Please enter a postcode");
+      return;
+    }
 
     const postcodeRegex = /^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$/i;
 
-    // Validate postcode
+    // Validate postcode format
     if (!postcodeRegex.test(postcode.trim())) {
-      setError("Please enter a valid UK postcode.");
+      setValidationError("Please enter a valid UK postcode");
       setAddresses([]);
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       const response = await fetch(
@@ -39,12 +55,16 @@ export default function PostcodeScreen() {
         )}`
       );
 
-      if (!response.ok) throw new Error("Failed to fetch addresses");
+      if (!response.ok) {
+        throw new Error(
+          "Couldn't reach the server. Please check your connection."
+        );
+      }
 
       const data = await response.json();
 
       if (!data.length || data[0].id < 0) {
-        setError("No addresses found for this postcode");
+        setValidationError("No addresses found for this postcode");
         setAddresses([]);
         setLoading(false);
         return;
@@ -52,7 +72,11 @@ export default function PostcodeScreen() {
 
       setAddresses(data);
     } catch (err) {
-      setError("Invalid postcode or postcode does not exist");
+      Toast.show({
+        type: "error",
+        text1: "Search failed",
+        text2: err.message || "Something went wrong. Please try again.",
+      });
       setAddresses([]);
     }
 
@@ -72,10 +96,13 @@ export default function PostcodeScreen() {
 
     try {
       await AsyncStorage.setItem("address", JSON.stringify(addressObject));
-
       router.replace("/home-screen");
     } catch (error) {
-      console.log("Error saving address ID:", error);
+      Toast.show({
+        type: "error",
+        text1: "Save failed",
+        text2: "Couldn't save your address. Please try again.",
+      });
     }
   };
 
@@ -107,14 +134,28 @@ export default function PostcodeScreen() {
       {/* Search Input & Button */}
       <View className="pt-6 px-6">
         <VStack space="xl">
-          <Input
-            placeholder="Enter your postcode..."
-            value={postcode}
-            onChangeText={(text) => setPostcode(text)}
-            onSubmitEditing={throttledFetchAddresses}
-            textContentType="postalCode"
-            autoComplete="postal-code"
-          />
+          <View>
+            <Input
+              placeholder="Enter your postcode..."
+              value={postcode}
+              onChangeText={(text) => {
+                setPostcode(text);
+                // Clear validation error when user starts typing
+                if (validationError) {
+                  setValidationError(null);
+                }
+              }}
+              onSubmitEditing={throttledFetchAddresses}
+              textContentType="postalCode"
+              autoComplete="postal-code"
+              error={!!validationError}
+            />
+            {validationError && (
+              <Text className="text-red-500 text-sm mt-2 ml-1">
+                {validationError}
+              </Text>
+            )}
+          </View>
           <Button
             size="lg"
             onPress={() => {
@@ -126,7 +167,6 @@ export default function PostcodeScreen() {
               {loading ? "Finding Your Address..." : "Find My Address"}
             </ButtonText>
           </Button>
-          {error && <Text className="text-red-500 mt-2">{error}</Text>}
         </VStack>
       </View>
 
@@ -154,6 +194,8 @@ export default function PostcodeScreen() {
           </ScrollView>
         </View>
       )}
+
+      <Toast />
     </View>
   );
 }

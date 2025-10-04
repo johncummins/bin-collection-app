@@ -1,4 +1,11 @@
-import { View, Text, Dimensions, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  ActivityIndicator,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,6 +15,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Heading } from "@/components/ui/heading";
 import CollectionBinIcon from "./components/CollectionBinIcon";
+import Toast from "react-native-toast-message";
 import {
   getDateWithSuffix,
   getBinName,
@@ -35,16 +43,23 @@ const HomeScreen = () => {
         const storedAddress = await AsyncStorage.getItem("address");
 
         // Redirect if no address is saved
-        if (!storedAddress) return router.replace("/address-screen");
+        if (!storedAddress) {
+          return router.replace("/address-screen");
+        }
 
         const { id: addressId, address } = JSON.parse(storedAddress);
-
         setAddressName(address);
 
         // Fetch fresh data
         const response = await fetch(
           `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC&numberOfCollections=12`
         );
+
+        if (!response.ok) {
+          throw new Error(
+            "Couldn't refresh collection dates. Please check your connection."
+          );
+        }
 
         let { collections = [] } = await response.json();
 
@@ -61,14 +76,34 @@ const HomeScreen = () => {
         setBinCollections(futureCollections);
 
         let savedSettings = await AsyncStorage.getItem("settings");
-
         savedSettings = savedSettings ? JSON.parse(savedSettings) : null;
 
-        await setupNotifications();
-
-        await addNotifications(savedSettings, futureCollections);
+        // Setup notifications (don't fail if this doesn't work)
+        try {
+          await setupNotifications();
+          await addNotifications(savedSettings, futureCollections);
+        } catch (notificationError) {
+          console.warn("Notification setup failed:", notificationError.message);
+          Toast.show({
+            type: "info",
+            text1: "Notifications",
+            text2:
+              "Couldn't set up notifications. You can try again in settings.",
+          });
+        }
       } catch (err) {
-        setError(`Failed to fetch bin collection data... ${err}`);
+        Alert.alert(
+          "Failed to load bin data",
+          err.message || "Something went wrong. Please try again.",
+          [
+            { text: "OK", style: "default" },
+            {
+              text: "Retry",
+              style: "default",
+              onPress: () => fetchBinData(),
+            },
+          ]
+        );
       } finally {
         setLoading(false);
       }
@@ -77,8 +112,41 @@ const HomeScreen = () => {
     fetchBinData();
   }, []);
 
-  if (loading) return <ActivityIndicator />;
-  if (error) return <Text>{error}</Text>;
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-background-0">
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text className="mt-4 text-typography-600">
+          Loading bin collection data...
+        </Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 justify-center items-center bg-background-0 p-6">
+        <View className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-sm">
+          <Text className="text-red-800 font-semibold text-lg mb-2">
+            Unable to load data
+          </Text>
+          <Text className="text-red-700 text-sm mb-4">{error}</Text>
+          <TouchableOpacity
+            className="bg-primary-600 rounded-lg py-3 px-4"
+            onPress={() => {
+              setError(null);
+              setLoading(true);
+              // Trigger a re-fetch by updating a dependency
+              window.location.reload?.() || router.replace("/home-screen");
+            }}>
+            <Text className="text-white font-semibold text-center">
+              Try Again
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   const { width = 0, height = 0 } = Dimensions.get("window");
 
@@ -165,9 +233,6 @@ const HomeScreen = () => {
       </View>
 
       <View className="flex-grow justify-center items-center">
-        {/* <Text className="text-xl mb-6 text-left w-full">
-          Upcoming Bin Collections
-        </Text> */}
         <Carousel
           width={cardWidth}
           data={visibleBinCollections}
@@ -204,6 +269,8 @@ const HomeScreen = () => {
           <ButtonText>Manage Notifications</ButtonText>
         </Button>
       </View>
+
+      <Toast />
     </View>
   );
 };

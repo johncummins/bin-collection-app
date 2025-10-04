@@ -9,11 +9,15 @@ export default ({
   onSubmitEditing,
   textContentType,
   autoComplete,
+  error,
   ...props
 }) => (
   <>
     {label && <Text className="text-lg font-semibold">{label}</Text>}
-    <Input variant="outline" size="lg">
+    <Input
+      variant="outline"
+      size="lg"
+      className={error ? "border-red-500" : ""}>
       <InputField
         placeholder={placeholder}
         value={value}

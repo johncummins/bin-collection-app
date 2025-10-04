@@ -17,19 +17,32 @@ export const DEFAULT_SETTINGS = {
 };
 
 export async function setupNotifications() {
-  // Set up notification handler
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
-    }),
-  });
+  try {
+    // Set up notification handler
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
+    });
 
-  // Request notification permissions
-  if (Device.isDevice) {
-    const { status } = await Notifications.requestPermissionsAsync();
+    // Request notification permissions
+    if (Device.isDevice) {
+      const { status } = await Notifications.requestPermissionsAsync();
+
+      if (status !== "granted") {
+        throw new Error("Notification permissions were denied");
+      }
+
+      return { success: true, status };
+    } else {
+      throw new Error("Notifications are not supported on this device");
+    }
+  } catch (error) {
+    console.error("Notification setup error:", error);
+    throw error;
   }
 }
 
@@ -50,7 +63,7 @@ export async function addNotifications(settings, binCollections = []) {
 
     const { dayBefore, dayOf, roundTypes: selectedRoundTypes = {} } = settings;
 
-    // End here if both notifications are turned offf
+    // End here if both notifications are turned off
     if (!dayBefore.enabled && !dayOf.enabled) return;
 
     for (const collection of binCollections) {
