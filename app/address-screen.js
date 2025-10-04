@@ -73,7 +73,7 @@ export default function PostcodeScreen() {
     try {
       await AsyncStorage.setItem("address", JSON.stringify(addressObject));
 
-      router.replace("/HomeScreen");
+      router.replace("/home-screen");
     } catch (error) {
       console.log("Error saving address ID:", error);
     }

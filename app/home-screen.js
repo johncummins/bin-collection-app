@@ -35,7 +35,7 @@ const HomeScreen = () => {
         const storedAddress = await AsyncStorage.getItem("address");
 
         // Redirect if no address is saved
-        if (!storedAddress) return router.replace("/AddressScreen");
+        if (!storedAddress) return router.replace("/address-screen");
 
         const { id: addressId, address } = JSON.parse(storedAddress);
 
@@ -159,7 +159,7 @@ const HomeScreen = () => {
           size="md"
           variant="outline"
           action="primary"
-          onPress={() => router.push("/AddressScreen")}>
+          onPress={() => router.push("/address-screen")}>
           <ButtonText>Edit</ButtonText>
         </Button>
       </View>
@@ -197,7 +197,7 @@ const HomeScreen = () => {
         <Button
           size="xl"
           onPress={() => {
-            navigation.navigate("NotificationsScreen", {
+            navigation.navigate("notifications-screen", {
               data: binCollections,
             });
           }}>

@@ -12,10 +12,10 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: "#f7f7f7" },
           headerShadowVisible: false,
         }}>
-        <Stack.Screen name="AddressScreen" options={{ title: "" }} />
-        <Stack.Screen name="HomeScreen" options={{ title: "" }} />
+        <Stack.Screen name="address-screen" options={{ title: "" }} />
+        <Stack.Screen name="home-screen" options={{ title: "" }} />
         <Stack.Screen
-          name="NotificationsScreen"
+          name="notifications-screen"
           options={{ title: "Notifications" }}
         />
       </Stack>
