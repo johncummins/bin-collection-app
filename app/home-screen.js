@@ -2,13 +2,12 @@ import {
   View,
   Text,
   Dimensions,
-  Alert,
   TouchableOpacity,
   RefreshControl,
   ScrollView,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
+// import { useRouter } from "expo-router"; // Temporarily disabled for testing
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Carousel from "react-native-reanimated-carousel";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -29,7 +28,7 @@ import {
 } from "./utils/NotificationHelperFunctions";
 
 const HomeScreen = () => {
-  const router = useRouter(); // Initialize router
+  // Router temporarily disabled for testing
 
   const [binCollections, setBinCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +54,9 @@ const HomeScreen = () => {
 
       // Redirect if no address is saved
       if (!storedAddress) {
-        return router.replace("/address-screen");
+        // return router.replace("/address-screen"); // Temporarily disabled for testing
+        console.log("Would redirect to address screen");
+        return;
       }
 
       const { id: addressId, address } = JSON.parse(storedAddress);
@@ -105,18 +106,11 @@ const HomeScreen = () => {
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
       if (!isRefresh) {
-        Alert.alert(
-          "Failed to load bin data",
-          err.message || "Something went wrong. Please try again.",
-          [
-            { text: "OK", style: "default" },
-            {
-              text: "Retry",
-              style: "default",
-              onPress: () => fetchBinData(),
-            },
-          ]
-        );
+        Toast.show({
+          type: "error",
+          text1: "Failed to load bin data",
+          text2: err.message || "Something went wrong. Please try again.",
+        });
       } else {
         Toast.show({
           type: "error",
@@ -203,26 +197,103 @@ const HomeScreen = () => {
     );
   }
 
-  if (error) {
+  // Test Error UI - Simple version without complex dependencies
+  if (error ) {
     return (
-      <View className="flex-1 justify-center items-center bg-background-0 p-6">
-        <View className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-sm">
-          <Text className="text-red-800 font-semibold text-lg mb-2">
-            Unable to load data
-          </Text>
-          <Text className="text-red-700 text-sm mb-4">{error}</Text>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#f9fafb",
+          padding: 24,
+        }}>
+        <View
+          style={{
+            backgroundColor: "white",
+            borderRadius: 16,
+            padding: 32,
+            maxWidth: 320,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 4,
+            borderWidth: 1,
+            borderColor: "#e5e7eb",
+          }}>
+          {/* Error Icon */}
+          <View style={{ alignItems: "center", marginBottom: 24 }}>
+            <View
+              style={{
+                backgroundColor: "#fef2f2",
+                borderRadius: 50,
+                padding: 16,
+                marginBottom: 16,
+              }}>
+              <Text style={{ color: "#dc2626", fontSize: 24 }}>⚠️</Text>
+            </View>
+            <Text
+              style={{
+                color: "#111827",
+                fontWeight: "bold",
+                fontSize: 20,
+                textAlign: "center",
+                marginBottom: 8,
+              }}>
+              Unable to load data
+            </Text>
+            <Text
+              style={{
+                color: "#6b7280",
+                fontSize: 14,
+                textAlign: "center",
+                lineHeight: 20,
+              }}>
+              {error || "Something went wrong. Please try again."}
+            </Text>
+          </View>
+
+          {/* Try Again Button */}
           <TouchableOpacity
-            className="bg-primary-600 rounded-lg py-3 px-4"
+            style={{
+              backgroundColor: "#2563eb",
+              borderRadius: 12,
+              paddingVertical: 16,
+              paddingHorizontal: 24,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.1,
+              shadowRadius: 2,
+              elevation: 2,
+            }}
             onPress={() => {
+              console.log("Try Again pressed");
               setError(null);
               setLoading(true);
-              // Trigger a re-fetch by updating a dependency
-              window.location.reload?.() || router.replace("/home-screen");
+              // fetchBinData(); // Commented out to avoid any potential issues
             }}>
-            <Text className="text-white font-semibold text-center">
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "600",
+                textAlign: "center",
+                fontSize: 16,
+              }}>
               Try Again
             </Text>
           </TouchableOpacity>
+
+          {/* Additional Help Text */}
+          <Text
+            style={{
+              color: "#9ca3af",
+              fontSize: 12,
+              textAlign: "center",
+              marginTop: 16,
+            }}>
+            Check your internet connection and try again
+          </Text>
         </View>
       </View>
     );
