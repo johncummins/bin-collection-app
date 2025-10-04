@@ -1,5 +1,6 @@
-import { Text, ActivityIndicator, View } from "react-native";
+import { Text, ActivityIndicator, View, TouchableOpacity } from "react-native";
 import { Input, InputField } from "@/components/ui/input";
+import { Ionicons } from "@expo/vector-icons";
 
 export default ({
   label,
@@ -16,21 +17,49 @@ export default ({
   <>
     {label && <Text className="text-lg font-semibold">{label}</Text>}
     <Input
-      variant="outline"
-      size="lg"
-      className={error ? "border-red-500" : ""}>
-      <InputField
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
-        onSubmitEditing={onSubmitEditing}
-        returnKeyType="search"
-        autoCapitalize="characters"
-        textContentType={textContentType}
-        autoComplete={autoComplete}
-        editable={!loading}
-        {...props}
-      />
+      variant="filled"
+      size="xl"
+      className="bg-white focus:outline-none focus:ring-0 rounded-full pl-4 pr-4 py-3"
+      style={{
+        borderColor: error ? "#EF4444" : "#E5E7EB",
+        borderWidth: 1,
+      }}>
+      <View className="flex-row items-center">
+        <View
+          style={{
+            marginRight: 4,
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+          <Ionicons name="search" size={18} color="#6B7280" />
+        </View>
+        <InputField
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          onSubmitEditing={onSubmitEditing}
+          returnKeyType="search"
+          autoCapitalize="characters"
+          textContentType={textContentType}
+          autoComplete={autoComplete}
+          editable={!loading}
+          className="flex-1"
+          style={{ outline: "none", border: "none" }}
+          {...props}
+        />
+        {value && value.length > 0 && (
+          <TouchableOpacity
+            onPress={() => onChangeText("")}
+            style={{
+              marginLeft: 8,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+          </TouchableOpacity>
+        )}
+      </View>
       {loading && (
         <View
           style={{

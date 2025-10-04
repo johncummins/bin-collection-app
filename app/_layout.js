@@ -12,7 +12,7 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: "#f7f7f7" },
           headerShadowVisible: false,
         }}>
-        <Stack.Screen name="address-screen" options={{ title: "" }} />
+        <Stack.Screen name="address-screen" options={{ headerShown: false }} />
         <Stack.Screen name="home-screen" options={{ title: "" }} />
       </Stack>
     </GluestackUIProvider>

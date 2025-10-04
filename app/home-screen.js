@@ -16,6 +16,7 @@ import { Badge, BadgeText } from "@/components/ui/badge";
 import { Heading } from "@/components/ui/heading";
 import CollectionBinIcon from "./components/CollectionBinIcon";
 import NotificationsModal from "./components/NotificationsModal";
+import AddressSelectionModal from "./components/AddressSelectionModal";
 import Toast from "react-native-toast-message";
 import {
   getDateWithSuffix,
@@ -38,6 +39,7 @@ const HomeScreen = () => {
   const [addressName, setAddressName] = useState("");
   const [notificationsModalVisible, setNotificationsModalVisible] =
     useState(false);
+  const [addressModalVisible, setAddressModalVisible] = useState(false);
 
   const fetchBinData = async (isRefresh = false) => {
     try {
@@ -289,6 +291,14 @@ const HomeScreen = () => {
 
   const visibleBinCollections = binCollections.slice(0, 6);
 
+  const handleAddressSelected = async (addressObject) => {
+    // Update the address name in the UI
+    setAddressName(addressObject.address);
+
+    // Refresh the bin data with the new address (as a background update, not a manual refresh)
+    await fetchBinData(false);
+  };
+
   return (
     <View className="flex-1">
       {/* Header - Fixed at top */}
@@ -301,7 +311,7 @@ const HomeScreen = () => {
             size="md"
             variant="outline"
             action="primary"
-            onPress={() => router.push("/address-screen")}>
+            onPress={() => setAddressModalVisible(true)}>
             <ButtonText>Edit</ButtonText>
           </Button>
         </View>
@@ -360,6 +370,13 @@ const HomeScreen = () => {
         visible={notificationsModalVisible}
         onClose={() => setNotificationsModalVisible(false)}
         binCollections={binCollections}
+      />
+
+      {/* Address Selection Modal */}
+      <AddressSelectionModal
+        visible={addressModalVisible}
+        onClose={() => setAddressModalVisible(false)}
+        onAddressSelected={handleAddressSelected}
       />
     </View>
   );
