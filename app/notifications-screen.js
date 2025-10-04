@@ -15,7 +15,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { VStack } from "@/components/ui/vstack";
-import Toast from "react-native-toast-message";
 import {
   DEFAULT_SETTINGS,
   addNotifications,
@@ -26,7 +25,6 @@ export default function NotificationsScreen() {
   const route = useRoute();
   const [binCollections] = useState(route.params?.data ?? null);
   const [settingsChanged, setSettingsChanged] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   // Notification settings state
   const [dayBeforeEnabled, setDayBeforeEnabled] = useState(true);
@@ -49,20 +47,13 @@ export default function NotificationsScreen() {
   // Configure notification handler
   const init = async () => {
     try {
-      setLoading(true);
       await setupNotifications();
 
       let savedSettings = await AsyncStorage.getItem("settings");
       savedSettings = savedSettings ? JSON.parse(savedSettings) : null;
       setupInitialSettingsState(savedSettings);
     } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Setup Error",
-        text2: "Couldn't set up notifications. Please try again.",
-      });
-    } finally {
-      setLoading(false);
+      // Silent error handling - no user feedback needed
     }
   };
 
@@ -90,8 +81,6 @@ export default function NotificationsScreen() {
 
   const handleNewSettings = async () => {
     try {
-      setLoading(true);
-
       const settings = {
         dayBefore: { enabled: dayBeforeEnabled, time: dayBeforeTime },
         dayOf: { enabled: dayOfEnabled, time: dayOfTime },
@@ -102,25 +91,11 @@ export default function NotificationsScreen() {
       await AsyncStorage.setItem("settings", JSON.stringify(settings));
 
       // Add notifications based on the new settings
-      const result = await addNotifications(settings, binCollections);
-
-      if (result) {
-        Toast.show({
-          type: "success",
-          text1: "Settings saved",
-          text2: "Your notification preferences have been updated.",
-        });
-      }
+      await addNotifications(settings, binCollections);
 
       setSettingsChanged(false);
     } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Save failed",
-        text2: "Couldn't save your reminder settings. Please try again.",
-      });
-    } finally {
-      setLoading(false);
+      // Silent error handling - no user feedback needed
     }
   };
 
@@ -158,16 +133,6 @@ export default function NotificationsScreen() {
   };
 
   // Loading state
-  if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background-0 p-6">
-        <Text className="text-typography-600 text-lg text-center">
-          Setting up notifications...
-        </Text>
-      </View>
-    );
-  }
-
   if (!binCollections) {
     return (
       <View className="flex-1 items-center justify-center bg-background-0 p-6">
@@ -323,8 +288,6 @@ export default function NotificationsScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
-
-      <Toast />
     </>
   );
 }

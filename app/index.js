@@ -32,7 +32,7 @@ export default function Index() {
   // Show loading screen while determining initial route
   return (
     <View className="flex-1 justify-center items-center bg-white">
-      <ActivityIndicator size="large" color="#007AFF" />
+      <ActivityIndicator size="large" color="#333333" />
     </View>
   );
 }

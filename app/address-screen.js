@@ -6,6 +6,7 @@ import {
   ScrollView,
   Keyboard,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import Input from "./components/Input";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -149,6 +150,7 @@ export default function PostcodeScreen() {
               textContentType="postalCode"
               autoComplete="postal-code"
               error={!!validationError}
+              loading={loading}
             />
             {validationError && (
               <Text className="text-red-500 text-sm mt-2 ml-1">
@@ -163,20 +165,51 @@ export default function PostcodeScreen() {
               Keyboard.dismiss();
             }}
             disabled={loading}>
-            <ButtonText>
-              {loading ? "Finding Your Address..." : "Find My Address"}
-            </ButtonText>
+            {loading ? (
+              <View className="flex-row items-center justify-center">
+                <ActivityIndicator
+                  size="small"
+                  color="#ffffff"
+                  className="mr-2"
+                />
+                <ButtonText>Finding Your Address...</ButtonText>
+              </View>
+            ) : (
+              <ButtonText>Find My Address</ButtonText>
+            )}
           </Button>
         </VStack>
       </View>
 
       {/* Centered Bin Icon & Text */}
-      {addresses.length === 0 && (
+      {addresses.length === 0 && !loading && (
         <View className="flex-1 items-center pt-32">
           <CollectionBinIcon width={100} height={100} fill="#333" />
           <Text className="mt-6 px-28 text-center text-md">
             Enter your postcode to find your address
           </Text>
+        </View>
+      )}
+
+      {/* Loading skeleton for address search */}
+      {loading && (
+        <View className="flex-1 px-6 pt-6">
+          <Text className="text-lg font-semibold pb-4 text-gray-800">
+            Select your address
+          </Text>
+          <View className="bg-white rounded-lg border border-gray-200">
+            {/* Skeleton address items */}
+            {[1, 2, 3, 4].map((_, index) => (
+              <View
+                key={index}
+                className={`px-4 py-4 ${
+                  index < 3 ? "border-b border-gray-200" : ""
+                }`}>
+                <View className="bg-gray-200 h-5 w-48 rounded mb-2" />
+                <View className="bg-gray-200 h-4 w-32 rounded" />
+              </View>
+            ))}
+          </View>
         </View>
       )}
 

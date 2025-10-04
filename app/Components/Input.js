@@ -1,4 +1,4 @@
-import { Text } from "react-native";
+import { Text, ActivityIndicator, View } from "react-native";
 import { Input, InputField } from "@/components/ui/input";
 
 export default ({
@@ -10,6 +10,7 @@ export default ({
   textContentType,
   autoComplete,
   error,
+  loading = false,
   ...props
 }) => (
   <>
@@ -27,8 +28,20 @@ export default ({
         autoCapitalize="characters"
         textContentType={textContentType}
         autoComplete={autoComplete}
+        editable={!loading}
         {...props}
       />
+      {loading && (
+        <View
+          style={{
+            position: "absolute",
+            right: 12,
+            top: "50%",
+            transform: [{ translateY: -10 }],
+          }}>
+          <ActivityIndicator size="small" color="#333333" />
+        </View>
+      )}
     </Input>
   </>
 );
