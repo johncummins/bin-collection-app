@@ -18,7 +18,8 @@
         "foregroundImage": "./assets/images/WheelieBin.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.cummins.bincollectionapp"
+      "package": "com.cummins.bincollectionapp",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",

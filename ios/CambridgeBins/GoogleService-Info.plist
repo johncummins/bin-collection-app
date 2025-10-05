@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAIpMee3C-7JV8-zPXxmlbAXTSUAA08-MY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1008429917269</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.cummins.bincollectionapp</string>
+	<key>PROJECT_ID</key>
+	<string>cambridge-bins</string>
+	<key>STORAGE_BUCKET</key>
+	<string>cambridge-bins.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<true></true>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1008429917269:ios:2071a5e60a81b5bc8660dc</string>
+</dict>
+</plist>

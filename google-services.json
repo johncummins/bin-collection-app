@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1008429917269",
+    "project_id": "cambridge-bins",
+    "storage_bucket": "cambridge-bins.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1008429917269:android:2071a5e60a81b5bc8660dc",
+        "android_client_info": {
+          "package_name": "com.cummins.bincollectionapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1008429917269-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIpMee3C-7JV8-zPXxmlbAXTSUAA08-MY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1008429917269-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
