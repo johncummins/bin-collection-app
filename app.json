@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cummins.bin-collection-app"
+      "bundleIdentifier": "com.cummins.bin-collection-app",
+      "googleServicesFile": "./ios/bincollectionapp/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
