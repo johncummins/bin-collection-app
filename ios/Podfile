@@ -16,8 +16,9 @@ prepare_react_native_project!
 target 'bincollectionapp' do
   use_expo_modules!
   
-  # Firebase pods with modular headers
-  pod 'Firebase/Analytics', :modular_headers => true
+  # Firebase Analytics without Ad ID support to avoid Swift pod conflicts
+  $RNFirebaseAnalyticsWithoutAdIdSupport = true
+  pod 'Firebase/Analytics'
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
