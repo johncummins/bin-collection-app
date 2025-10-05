@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { throttle } from "lodash";
 import Toast from "react-native-toast-message";
+import analytics from "../utils/analytics";
 
 export const useAddressSearch = () => {
   const [postcode, setPostcode] = useState("");
@@ -10,6 +11,8 @@ export const useAddressSearch = () => {
   const [selectedRowId, setSelectedRowId] = useState(null);
 
   const fetchAddresses = async () => {
+    const startTime = Date.now();
+
     // Clear previous errors and addresses
     setValidationError(null);
     setAddresses([]);
@@ -17,6 +20,9 @@ export const useAddressSearch = () => {
     // Check for empty input
     if (!postcode.trim()) {
       setValidationError("Please enter a postcode");
+      analytics.trackAction("postcode_validation_error", {
+        error: "empty_postcode",
+      });
       return;
     }
 
@@ -26,19 +32,35 @@ export const useAddressSearch = () => {
     if (!postcodeRegex.test(postcode.trim())) {
       setValidationError("Please enter a valid Cambridge postcode");
       setAddresses([]);
+      analytics.trackAction("postcode_validation_error", {
+        error: "invalid_format",
+        postcode: postcode.trim(),
+      });
       return;
     }
 
     setLoading(true);
 
     try {
+      const apiStartTime = Date.now();
       const response = await fetch(
         `https://servicelayer3c.azure-api.net/wastecalendar/address/search?postcode=${encodeURIComponent(
           postcode
         )}`
       );
+      const apiDuration = Date.now() - apiStartTime;
 
       if (!response.ok) {
+        analytics.trackApiCall(
+          "address_search_api",
+          "GET",
+          response.status,
+          apiDuration,
+          {
+            postcode: postcode.trim(),
+            error: "api_error",
+          }
+        );
         throw new Error(
           "Couldn't reach the server. Please check your connection."
         );
@@ -52,11 +74,40 @@ export const useAddressSearch = () => {
         );
         setAddresses([]);
         setLoading(false);
+        analytics.trackApiCall(
+          "address_search_api",
+          "GET",
+          response.status,
+          apiDuration,
+          {
+            postcode: postcode.trim(),
+            addresses_found: 0,
+            error: "no_addresses",
+          }
+        );
         return;
       }
 
+      // Track successful API call
+      analytics.trackApiCall(
+        "address_search_api",
+        "GET",
+        response.status,
+        apiDuration,
+        {
+          postcode: postcode.trim(),
+          addresses_found: data.length,
+        }
+      );
+
       setAddresses(data);
     } catch (err) {
+      analytics.trackError(err, {
+        component: "address_search",
+        action: "fetch_addresses",
+        postcode: postcode.trim(),
+      });
+
       Toast.show({
         type: "error",
         text1: "Search failed",

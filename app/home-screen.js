@@ -26,6 +26,7 @@ import {
   addNotifications,
   setupNotifications,
 } from "./utils/NotificationHelperFunctions";
+import analytics from "./utils/analytics";
 
 const HomeScreen = () => {
   // Router temporarily disabled for testing
@@ -42,11 +43,15 @@ const HomeScreen = () => {
   const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
 
   const fetchBinData = async (isRefresh = false) => {
+    const startTime = Date.now();
+
     try {
       if (isRefresh) {
         setRefreshing(true);
+        analytics.trackAction("refresh_bin_data");
       } else {
         setLoading(true);
+        analytics.trackAction("load_bin_data");
       }
       setError(null);
 
@@ -55,6 +60,7 @@ const HomeScreen = () => {
 
       // Redirect if no address is saved
       if (!storedAddress) {
+        analytics.trackBinCollectionEvent("no_address_saved");
         // return router.replace("/address-screen"); // Temporarily disabled for testing
         console.log("Would redirect to address screen");
         return;
@@ -64,17 +70,41 @@ const HomeScreen = () => {
       setAddressName(address);
 
       // Fetch fresh data
+      const apiStartTime = Date.now();
       const response = await fetch(
         `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC&numberOfCollections=12`
       );
+      const apiDuration = Date.now() - apiStartTime;
 
       if (!response.ok) {
+        analytics.trackApiCall(
+          "bin_collection_api",
+          "GET",
+          response.status,
+          apiDuration,
+          {
+            address_id: addressId,
+            error: "api_error",
+          }
+        );
         throw new Error(
           "Couldn't refresh collection dates. Please check your connection."
         );
       }
 
       let { collections = [] } = await response.json();
+
+      // Track successful API call
+      analytics.trackApiCall(
+        "bin_collection_api",
+        "GET",
+        response.status,
+        apiDuration,
+        {
+          address_id: addressId,
+          collections_count: collections.length,
+        }
+      );
 
       // Filter out past collections - only show future ones
       const today = new Date();
@@ -88,6 +118,15 @@ const HomeScreen = () => {
 
       setBinCollections(futureCollections);
 
+      // Track successful data load
+      const totalDuration = Date.now() - startTime;
+      analytics.trackPerformance("bin_data_load_time", totalDuration);
+      analytics.trackBinCollectionEvent("data_loaded_successfully", {
+        collections_count: futureCollections.length,
+        address_id: addressId,
+        load_time_ms: totalDuration,
+      });
+
       let savedSettings = await AsyncStorage.getItem("settings");
       savedSettings = savedSettings ? JSON.parse(savedSettings) : null;
 
@@ -95,7 +134,12 @@ const HomeScreen = () => {
       try {
         await setupNotifications();
         await addNotifications(savedSettings, futureCollections);
+        analytics.trackNotificationEvent("notifications_setup_success");
       } catch (notificationError) {
+        analytics.trackError(notificationError, {
+          component: "notification_setup",
+          action: "setup_notifications",
+        });
         console.warn("Notification setup failed:", notificationError.message);
         Toast.show({
           type: "info",
@@ -106,6 +150,14 @@ const HomeScreen = () => {
       }
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
+
+      // Track error
+      analytics.trackError(err, {
+        component: "home_screen",
+        action: isRefresh ? "refresh_bin_data" : "load_bin_data",
+        error_type: "data_fetch_error",
+      });
+
       if (!isRefresh) {
         Toast.show({
           type: "error",
@@ -126,6 +178,7 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
+    analytics.trackScreen("home_screen");
     fetchBinData();
   }, []);
 
@@ -356,11 +409,24 @@ const HomeScreen = () => {
     setIsUpdatingAddress(true);
 
     try {
+      // Track address selection
+      analytics.trackAddressSelection(
+        addressObject.id,
+        addressObject.address,
+        "modal"
+      );
+
       // Update the address name in the UI
       setAddressName(addressObject.address);
 
       // Refresh the bin data with the new address (as a background update, not a manual refresh)
       await fetchBinData(false);
+    } catch (error) {
+      analytics.trackError(error, {
+        component: "home_screen",
+        action: "address_selection",
+        error_type: "address_update_error",
+      });
     } finally {
       // Always clear the flag, even if there's an error
       setIsUpdatingAddress(false);
@@ -379,7 +445,10 @@ const HomeScreen = () => {
             size="md"
             variant="outline"
             action="primary"
-            onPress={() => setAddressModalVisible(true)}>
+            onPress={() => {
+              analytics.trackAction("open_address_modal");
+              setAddressModalVisible(true);
+            }}>
             <ButtonText>Edit</ButtonText>
           </Button>
         </View>
@@ -409,7 +478,17 @@ const HomeScreen = () => {
               snapEnabled={true}
               height={cardHeight}
               loop={false}
-              onProgressChange={(_, index) => setActiveIndex(Math.round(index))}
+              onProgressChange={(_, index) => {
+                const newIndex = Math.round(index);
+                if (newIndex !== activeIndex) {
+                  analytics.trackAction("carousel_swipe", {
+                    from_index: activeIndex,
+                    to_index: newIndex,
+                    collection_date: visibleBinCollections[newIndex]?.date,
+                  });
+                }
+                setActiveIndex(newIndex);
+              }}
               renderItem={displayCard}
             />
 
@@ -430,7 +509,12 @@ const HomeScreen = () => {
 
       {/* Button at the bottom */}
       <View className="pb-20 px-6">
-        <Button size="xl" onPress={() => setNotificationsModalVisible(true)}>
+        <Button
+          size="xl"
+          onPress={() => {
+            analytics.trackAction("open_notifications_modal");
+            setNotificationsModalVisible(true);
+          }}>
           <ButtonText>Manage Notifications</ButtonText>
         </Button>
       </View>

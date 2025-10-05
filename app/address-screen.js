@@ -1,4 +1,5 @@
 import { View, Text, ScrollView } from "react-native";
+import React from "react";
 import Input from "./components/Input";
 import { VStack } from "@/components/ui/vstack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,10 +10,16 @@ import { useAddressSearch } from "./hooks/useAddressSearch";
 import Toast from "react-native-toast-message";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import analytics from "./utils/analytics";
 
 export default function PostcodeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  // Track screen view
+  React.useEffect(() => {
+    analytics.trackScreen("address_screen");
+  }, []);
   const {
     postcode,
     setPostcode,
@@ -32,9 +39,17 @@ export default function PostcodeScreen() {
     const addressObject = { id: addressId, address: address };
 
     try {
+      // Track address selection
+      analytics.trackAddressSelection(addressId, address, "initial_setup");
+
       await AsyncStorage.setItem("address", JSON.stringify(addressObject));
       router.replace("/home-screen");
-    } catch (_error) {
+    } catch (error) {
+      analytics.trackError(error, {
+        component: "address_screen",
+        action: "save_address",
+        error_type: "storage_error",
+      });
       Toast.show({
         type: "error",
         text1: "Save failed",
@@ -74,7 +89,10 @@ export default function PostcodeScreen() {
                   setPostcode(text);
                 }
               }}
-              onSubmitEditing={throttledFetchAddresses}
+              onSubmitEditing={() => {
+                analytics.trackAction("postcode_search", { postcode });
+                throttledFetchAddresses();
+              }}
               textContentType="postalCode"
               autoComplete="postal-code"
               error={!!validationError}
