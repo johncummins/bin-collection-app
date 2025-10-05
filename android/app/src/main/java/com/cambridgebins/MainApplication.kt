@@ -1,4 +1,4 @@
-package com.cummins.bin_collection_app
+package com.cambridgebins
 
 import android.app.Application
 import android.content.res.Configuration

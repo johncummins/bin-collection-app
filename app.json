@@ -10,15 +10,15 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cummins.bin-collection-app",
-      "googleServicesFile": "./ios/bincollectionapp/GoogleService-Info.plist"
+      "bundleIdentifier": "com.cummins.bincollectionapp",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/WheelieBin.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.cummins.bin-collection-app"
+      "package": "com.cummins.bincollectionapp"
     },
     "web": {
       "bundler": "metro",

@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.cummins.bin-collection-app</string>
+	<string>com.cummins.bincollectionapp</string>
 	<key>PROJECT_ID</key>
 	<string>cambridge-bins</string>
 	<key>STORAGE_BUCKET</key>
