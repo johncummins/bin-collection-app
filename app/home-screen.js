@@ -21,12 +21,12 @@ import {
   getDateWithSuffix,
   getBinName,
   getBinColour,
-} from "./utils/HelperFunctions";
+} from "../src/utils/HelperFunctions";
 import {
   addNotifications,
   setupNotifications,
-} from "./utils/NotificationHelperFunctions";
-import analytics from "./utils/analytics";
+} from "../src/utils/NotificationHelperFunctions";
+import analytics from "../src/utils/analytics";
 
 const HomeScreen = () => {
   const router = useRouter();

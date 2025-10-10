@@ -57,7 +57,8 @@ export async function addNotifications(settings, binCollections = []) {
     // Reset furthest date
     FURTHEST_DATE = null;
 
-    if (binCollections.length === 0) return console.log("No collection dates");
+    // End here if no collection dates
+    if (binCollections.length === 0) return;
 
     const { dayBefore, dayOf, roundTypes: selectedRoundTypes = {} } = settings;
 
@@ -109,7 +110,6 @@ export async function addNotifications(settings, binCollections = []) {
 
     const notifications =
       await Notifications.getAllScheduledNotificationsAsync();
-    console.log(`${notifications.length} Notifications added`);
 
     return true;
   } catch (error) {
