@@ -14,7 +14,7 @@ import * as Sentry from "@sentry/react-native";
 // Initialize Sentry
 Sentry.init({
   dsn: "https://1534af3ab42ac4d2bc3820f20a467ba0@o4510132435288064.ingest.de.sentry.io/4510132436992080",
-  debug: __DEV__, // Enable debug mode in development
+  debug: false, // Disable debug mode to reduce console noise
   environment: __DEV__ ? "development" : "production",
 
   // Performance monitoring

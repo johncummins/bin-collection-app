@@ -51,8 +51,6 @@ export async function addNotifications(settings, binCollections = []) {
 
   settings = settings || DEFAULT_SETTINGS;
 
-  console.log(settings);
-
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
 

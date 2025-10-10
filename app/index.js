@@ -19,8 +19,7 @@ export default function Index() {
           // No address saved, go to address screen
           router.replace("/address-screen");
         }
-      } catch (error) {
-        console.log("Error checking initial route:", error);
+      } catch {
         // Default to address screen if there's an error
         router.replace("/address-screen");
       }
