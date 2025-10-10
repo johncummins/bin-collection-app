@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-// import { useRouter } from "expo-router"; // Temporarily disabled for testing
+import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Carousel from "react-native-reanimated-carousel";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import {
 import analytics from "./utils/analytics";
 
 const HomeScreen = () => {
-  // Router temporarily disabled for testing
+  const router = useRouter();
 
   const [binCollections, setBinCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,18 +55,16 @@ const HomeScreen = () => {
       }
       setError(null);
 
-      // Load stored address ID
       const storedAddress = await AsyncStorage.getItem("address");
+      const parsedAddress = storedAddress ? JSON.parse(storedAddress) : null;
 
       // Redirect if no address is saved
-      if (!storedAddress) {
+      if (!parsedAddress?.id) {
         analytics.trackBinCollectionEvent("no_address_saved");
-        // return router.replace("/address-screen"); // Temporarily disabled for testing
-        console.log("Would redirect to address screen");
-        return;
+        return router.replace("/address-screen");
       }
 
-      const { id: addressId, address } = JSON.parse(storedAddress);
+      const { id: addressId, address } = parsedAddress;
       setAddressName(address);
 
       // Fetch fresh data

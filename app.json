@@ -8,10 +8,32 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "Never miss your bin collection day again! Cambridge Bins helps residents stay on top of their waste collection schedule with personalized notifications and smart reminders.",
+    "keywords": [
+      "waste management",
+      "bin collection",
+      "recycling",
+      "Cambridge",
+      "notifications",
+      "schedule",
+      "environment",
+      "sustainability"
+    ],
+    "privacy": "https://cambridgebins.app/privacy",
+    "supportUrl": "https://cambridgebins.app/support",
+    "homepage": "https://cambridgebins.app",
+    "author": "Cambridge Bins Team",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cummins.bincollectionapp",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses location to help you find your nearest bin collection schedule.",
+        "NSUserNotificationsUsageDescription": "This app sends notifications to remind you about your bin collection days."
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +41,13 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.cummins.bincollectionapp",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
     },
     "web": {
       "bundler": "metro",
