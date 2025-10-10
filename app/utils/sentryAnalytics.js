@@ -29,10 +29,6 @@ Sentry.init({
   // Additional options
   beforeSend(event) {
     // Filter out development errors if needed
-    if (__DEV__ && event.exception) {
-      console.log("Sentry Event:", event);
-    }
-    console.log("Sentry beforeSend - Event being sent:", event.event_id);
     return event;
   },
 
@@ -49,11 +45,7 @@ Sentry.init({
   },
 });
 
-// Log Sentry initialization
-if (__DEV__) {
-  console.log("Sentry initialized successfully");
-  console.log("Sentry DSN configured");
-}
+// Sentry initialization complete
 
 /**
  * Sentry-focused analytics class for error monitoring and performance
@@ -105,9 +97,6 @@ class SentryAnalytics {
       });
 
       this.isInitialized = true;
-      if (__DEV__) {
-        console.log("Sentry Analytics initialized");
-      }
     } catch (error) {
       console.error("Sentry Analytics initialization failed:", error);
     }

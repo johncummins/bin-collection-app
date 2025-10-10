@@ -34,7 +34,6 @@ class CombinedAnalytics {
       await sentryAnalytics.initialize();
 
       this.isInitialized = true;
-      console.log("Combined Analytics initialized (Firebase + Sentry)");
     } catch (error) {
       console.error("Combined Analytics initialization failed:", error);
     }

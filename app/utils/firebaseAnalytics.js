@@ -41,7 +41,6 @@ class FirebaseAnalytics {
       await analytics().setUserId("anonymous_user");
 
       this.isInitialized = true;
-      console.log("Firebase Analytics initialized");
     } catch (error) {
       console.error("Firebase Analytics initialization failed:", error);
     }
@@ -60,13 +59,6 @@ class FirebaseAnalytics {
         screen_class: screenName, // For iOS
         ...properties,
       });
-
-      if (__DEV__) {
-        console.log(
-          `Firebase Analytics - Screen View: ${screenName}`,
-          properties
-        );
-      }
     } catch (error) {
       console.error("Firebase Analytics screen tracking failed:", error);
     }
@@ -84,10 +76,6 @@ class FirebaseAnalytics {
         timestamp: Date.now(),
         ...parameters,
       });
-
-      if (__DEV__) {
-        console.log(`Firebase Analytics - Event: ${eventName}`, parameters);
-      }
     } catch (error) {
       console.error("Firebase Analytics event tracking failed:", error);
     }
