@@ -118,42 +118,62 @@ export default function AddressSelectionModal({
             <View style={{ width: 60 }} />
           </View>
 
+          {/* Sticky Search Input */}
+          <View
+            style={{
+              backgroundColor: "#f7f7f7",
+              padding: 16,
+              // borderBottomWidth: 1,
+              // borderBottomColor: "#e5e5e5",
+            }}>
+            <VStack space="lg">
+              <View>
+                <Input
+                  placeholder="Enter your postcode..."
+                  value={postcode}
+                  onChangeText={(text) => {
+                    setPostcode(text);
+                    // Clear validation error when user starts typing
+                    if (validationError) {
+                      setValidationError(null);
+                    }
+                    // Clear addresses when text is cleared (X button clicked)
+                    if (text === "") {
+                      clearAddresses();
+                    }
+                  }}
+                  onSubmitEditing={throttledFetchAddresses}
+                  textContentType="postalCode"
+                  autoComplete="postal-code"
+                  error={!!validationError}
+                />
+                {validationError && (
+                  <Text className="text-red-500 text-sm mt-2 ml-1">
+                    {validationError}
+                  </Text>
+                )}
+              </View>
+            </VStack>
+
+            {/* Sticky "Select your address" text */}
+            {addresses.length > 0 || loading ? (
+              <Text className="text-lg font-semibold pt-4 text-gray-800 mt-4">
+                Select your address
+              </Text>
+            ) : null}
+          </View>
+
+          {/* Scrollable Content Area */}
           <ScrollView
             style={{ flex: 1, backgroundColor: "#f7f7f7" }}
             bounces={false}
             showsVerticalScrollIndicator={false}
             scrollEventThrottle={16}>
-            <View style={{ padding: 16 }}>
-              {/* Search Input & Button */}
-              <VStack space="lg">
-                <View>
-                  <Input
-                    placeholder="Enter your postcode..."
-                    value={postcode}
-                    onChangeText={(text) => {
-                      setPostcode(text);
-                      // Clear validation error when user starts typing
-                      if (validationError) {
-                        setValidationError(null);
-                      }
-                      // Clear addresses when text is cleared (X button clicked)
-                      if (text === "") {
-                        clearAddresses();
-                      }
-                    }}
-                    onSubmitEditing={throttledFetchAddresses}
-                    textContentType="postalCode"
-                    autoComplete="postal-code"
-                    error={!!validationError}
-                  />
-                  {validationError && (
-                    <Text className="text-red-500 text-sm mt-2 ml-1">
-                      {validationError}
-                    </Text>
-                  )}
-                </View>
-              </VStack>
-
+            <View
+              style={{
+                // padding: 16,
+                paddingHorizontal: 16,
+              }}>
               {/* Centered Bin Icon & Text */}
               {addresses.length === 0 && !loading && (
                 <View className="items-center pt-16">
@@ -166,10 +186,7 @@ export default function AddressSelectionModal({
 
               {/* Loading skeleton for address search */}
               {loading && (
-                <View className="pt-6">
-                  <Text className="text-lg font-semibold pb-4 text-gray-800">
-                    Select your address
-                  </Text>
+                <View>
                   <View className="bg-white rounded-xl border border-gray-200">
                     {/* Skeleton address items - show more items for full length */}
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => (
@@ -188,19 +205,14 @@ export default function AddressSelectionModal({
 
               {/* Address List */}
               {addresses.length > 0 && (
-                <View className="flex-1 pt-6 pb-6">
-                  <Text className="text-lg font-semibold pb-4 text-gray-800">
-                    Select your address
-                  </Text>
-                  <ScrollView
-                    className="bg-white rounded-xl border border-gray-200 flex-1"
-                    showsVerticalScrollIndicator={false}>
+                <View className="pb-6">
+                  <View className="bg-white rounded-xl border border-gray-200">
                     <AddressList
                       addresses={addresses}
                       selectedRowId={selectedRowId}
                       onAddressSelect={handleAddressSelect}
                     />
-                  </ScrollView>
+                  </View>
                 </View>
               )}
             </View>

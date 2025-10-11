@@ -69,8 +69,8 @@ export default function PostcodeScreen() {
         </Text>
       </View>
 
-      {/* Search Input */}
-      <View className="px-6 pb-6">
+      {/* Sticky Search Input */}
+      <View className="px-6 pb-6 bg-gray-50">
         <VStack space="lg">
           <View>
             <Input
@@ -104,6 +104,13 @@ export default function PostcodeScreen() {
             )}
           </View>
         </VStack>
+
+        {/* Sticky "Select your address" text */}
+        {addresses.length > 0 || loading ? (
+          <Text className="text-lg font-semibold pt-4 text-gray-800 mt-4">
+            Select your address
+          </Text>
+        ) : null}
       </View>
 
       {/* Centered Bin Icon & Text */}
@@ -121,10 +128,7 @@ export default function PostcodeScreen() {
 
       {/* Loading skeleton for address search */}
       {loading && addresses.length === 0 && (
-        <View className="flex-1 px-6 pt-6">
-          <Text className="text-lg font-semibold pb-4 text-gray-800">
-            Select your address
-          </Text>
+        <View className="flex-1 px-6 ">
           <View className="bg-white rounded-lg border border-gray-200">
             {/* Skeleton address items - show more items for full length */}
             {[1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => (
@@ -143,19 +147,14 @@ export default function PostcodeScreen() {
 
       {/* Address List */}
       {addresses.length > 0 && (
-        <View className="flex-1 px-6  pb-12">
-          <Text className="text-lg font-semibold pb-4 text-gray-800">
-            Select your address
-          </Text>
-          <ScrollView
-            className="bg-white rounded-lg border border-gray-200 flex-1"
-            showsVerticalScrollIndicator={false}>
+        <View className="flex-1 px-6 pb-12">
+          <View className="bg-white rounded-lg border border-gray-200 flex-1">
             <AddressList
               addresses={addresses}
               selectedRowId={selectedRowId}
               onAddressSelect={handleAddressSelect}
             />
-          </ScrollView>
+          </View>
         </View>
       )}
 
