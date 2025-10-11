@@ -4,7 +4,7 @@ import Input from "./components/Input";
 import { VStack } from "@/components/ui/vstack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import CollectionBinIcon from "./components/CollectionBinIcon";
+import BinIcon from "./components/BinIcon";
 import AddressList from "./components/AddressList";
 import { useAddressSearch } from "./hooks/useAddressSearch";
 import Toast from "react-native-toast-message";
@@ -109,7 +109,7 @@ export default function PostcodeScreen() {
       {/* Centered Bin Icon & Text */}
       {addresses.length === 0 && !loading && (
         <View className="flex-1 items-center pt-32">
-          <CollectionBinIcon width={120} height={120} fill="#333" />
+          <BinIcon width={120} height={120} outline={true} />
           <Text className="mt-6 px-18 text-center text-xl">
             Enter your postcode to find your address
           </Text>

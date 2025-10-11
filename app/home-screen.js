@@ -13,7 +13,7 @@ import Carousel from "react-native-reanimated-carousel";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Heading } from "@/components/ui/heading";
-import CollectionBinIcon from "./components/CollectionBinIcon";
+import BinIcon from "./components/BinIcon";
 import NotificationsModal from "./components/NotificationsModal";
 import AddressSelectionModal from "./components/AddressSelectionModal";
 import Toast from "react-native-toast-message";
@@ -386,11 +386,7 @@ const HomeScreen = () => {
               <View
                 className="flex-1 justify-center items-center"
                 key={roundType}>
-                <CollectionBinIcon
-                  width={iconSize}
-                  height={iconSize}
-                  fill={color}
-                />
+                <BinIcon width={iconSize} height={iconSize} fill={color} />
                 <Text className="mt-6 text-lg">{binName}</Text>
               </View>
             );

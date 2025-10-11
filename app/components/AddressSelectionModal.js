@@ -10,7 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Input from "./Input";
 import { VStack } from "../../components/ui/vstack";
-import CollectionBinIcon from "./CollectionBinIcon";
+import BinIcon from "./BinIcon";
 import AddressList from "./AddressList";
 import { useAddressSearch } from "../hooks/useAddressSearch";
 import Toast from "react-native-toast-message";
@@ -157,7 +157,7 @@ export default function AddressSelectionModal({
               {/* Centered Bin Icon & Text */}
               {addresses.length === 0 && !loading && (
                 <View className="items-center pt-16">
-                  <CollectionBinIcon width={80} height={80} fill="#333" />
+                  <BinIcon width={100} height={100} outline={true} />
                   <Text className="mt-4 px-8 text-center text-md text-gray-600">
                     Enter your postcode to find your address
                   </Text>
