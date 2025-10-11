@@ -11,8 +11,6 @@ export const useAddressSearch = () => {
   const [selectedRowId, setSelectedRowId] = useState(null);
 
   const fetchAddresses = async () => {
-    const startTime = Date.now();
-
     // Clear previous errors and addresses
     setValidationError(null);
     setAddresses([]);

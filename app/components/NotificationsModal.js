@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -41,20 +41,20 @@ export default function NotificationsModal({
     if (visible) {
       init();
     }
-  }, [visible]);
+  }, [visible, init]);
 
   // Configure notification handler
-  const init = async () => {
+  const init = useCallback(async () => {
     try {
       await setupNotifications();
 
       let savedSettings = await AsyncStorage.getItem("settings");
       savedSettings = savedSettings ? JSON.parse(savedSettings) : null;
       setupInitialSettingsState(savedSettings);
-    } catch (error) {
+    } catch (_error) {
       // Silent error handling - no user feedback needed
     }
-  };
+  }, []);
 
   const setupInitialSettingsState = (settings) => {
     // Day before settings
@@ -76,9 +76,9 @@ export default function NotificationsModal({
   // Handle automatic updates when settings change
   useEffect(() => {
     if (settingsChanged) handleNewSettings();
-  }, [settingsChanged]);
+  }, [settingsChanged, handleNewSettings]);
 
-  const handleNewSettings = async () => {
+  const handleNewSettings = useCallback(async () => {
     try {
       const settings = {
         dayBefore: { enabled: dayBeforeEnabled, time: dayBeforeTime },
@@ -93,10 +93,17 @@ export default function NotificationsModal({
       await addNotifications(settings, binCollections);
 
       setSettingsChanged(false);
-    } catch (error) {
+    } catch (_error) {
       // Silent error handling - no user feedback needed
     }
-  };
+  }, [
+    dayBeforeEnabled,
+    dayBeforeTime,
+    dayOfEnabled,
+    dayOfTime,
+    roundTypes,
+    binCollections,
+  ]);
 
   const toggleRoundType = (type) => {
     setRoundTypes((prev) => {

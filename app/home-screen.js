@@ -6,7 +6,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Carousel from "react-native-reanimated-carousel";
@@ -42,39 +42,58 @@ const HomeScreen = () => {
   const [addressModalVisible, setAddressModalVisible] = useState(false);
   const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
 
-  const fetchBinData = async (isRefresh = false) => {
-    const startTime = Date.now();
+  const fetchBinData = useCallback(
+    async (isRefresh = false) => {
+      const startTime = Date.now();
 
-    try {
-      if (isRefresh) {
-        setRefreshing(true);
-        analytics.trackAction("refresh_bin_data");
-      } else {
-        setLoading(true);
-        analytics.trackAction("load_bin_data");
-      }
-      setError(null);
+      try {
+        if (isRefresh) {
+          setRefreshing(true);
+          analytics.trackAction("refresh_bin_data");
+        } else {
+          setLoading(true);
+          analytics.trackAction("load_bin_data");
+        }
+        setError(null);
 
-      const storedAddress = await AsyncStorage.getItem("address");
-      const parsedAddress = storedAddress ? JSON.parse(storedAddress) : null;
+        const storedAddress = await AsyncStorage.getItem("address");
+        const parsedAddress = storedAddress ? JSON.parse(storedAddress) : null;
 
-      // Redirect if no address is saved
-      if (!parsedAddress?.id) {
-        analytics.trackBinCollectionEvent("no_address_saved");
-        return router.replace("/address-screen");
-      }
+        // Redirect if no address is saved
+        if (!parsedAddress?.id) {
+          analytics.trackBinCollectionEvent("no_address_saved");
+          return router.replace("/address-screen");
+        }
 
-      const { id: addressId, address } = parsedAddress;
-      setAddressName(address);
+        const { id: addressId, address } = parsedAddress;
+        setAddressName(address);
 
-      // Fetch fresh data
-      const apiStartTime = Date.now();
-      const response = await fetch(
-        `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC&numberOfCollections=12`
-      );
-      const apiDuration = Date.now() - apiStartTime;
+        // Fetch fresh data
+        const apiStartTime = Date.now();
+        const response = await fetch(
+          `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC&numberOfCollections=12`
+        );
+        const apiDuration = Date.now() - apiStartTime;
 
-      if (!response.ok) {
+        if (!response.ok) {
+          analytics.trackApiCall(
+            "bin_collection_api",
+            "GET",
+            response.status,
+            apiDuration,
+            {
+              address_id: addressId,
+              error: "api_error",
+            }
+          );
+          throw new Error(
+            "Couldn't refresh collection dates. Please check your connection."
+          );
+        }
+
+        let { collections = [] } = await response.json();
+
+        // Track successful API call
         analytics.trackApiCall(
           "bin_collection_api",
           "GET",
@@ -82,103 +101,87 @@ const HomeScreen = () => {
           apiDuration,
           {
             address_id: addressId,
-            error: "api_error",
+            collections_count: collections.length,
           }
         );
-        throw new Error(
-          "Couldn't refresh collection dates. Please check your connection."
-        );
-      }
 
-      let { collections = [] } = await response.json();
+        // Filter out past collections - only show future ones
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to start of day
 
-      // Track successful API call
-      analytics.trackApiCall(
-        "bin_collection_api",
-        "GET",
-        response.status,
-        apiDuration,
-        {
+        const futureCollections = collections.filter((collection) => {
+          const collectionDate = new Date(collection.date);
+          collectionDate.setHours(0, 0, 0, 0); // Reset time to start of day
+          return collectionDate >= today;
+        });
+
+        setBinCollections(futureCollections);
+
+        // Track successful data load
+        const totalDuration = Date.now() - startTime;
+        analytics.trackPerformance("bin_data_load_time", totalDuration);
+        analytics.trackBinCollectionEvent("data_loaded_successfully", {
+          collections_count: futureCollections.length,
           address_id: addressId,
-          collections_count: collections.length,
+          load_time_ms: totalDuration,
+        });
+
+        let savedSettings = await AsyncStorage.getItem("settings");
+        savedSettings = savedSettings ? JSON.parse(savedSettings) : null;
+
+        // Setup notifications (don't fail if this doesn't work)
+        try {
+          await setupNotifications();
+          await addNotifications(savedSettings, futureCollections);
+          analytics.trackNotificationEvent("notifications_setup_success");
+        } catch (notificationError) {
+          analytics.trackError(notificationError, {
+            component: "notification_setup",
+            action: "setup_notifications",
+          });
+          console.warn("Notification setup failed:", notificationError.message);
+          Toast.show({
+            type: "info",
+            text1: "Notifications",
+            text2:
+              "Couldn't set up notifications. You can try again in settings.",
+          });
         }
-      );
+      } catch (err) {
+        setError(err.message || "Something went wrong. Please try again.");
 
-      // Filter out past collections - only show future ones
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Reset time to start of day
-
-      const futureCollections = collections.filter((collection) => {
-        const collectionDate = new Date(collection.date);
-        collectionDate.setHours(0, 0, 0, 0); // Reset time to start of day
-        return collectionDate >= today;
-      });
-
-      setBinCollections(futureCollections);
-
-      // Track successful data load
-      const totalDuration = Date.now() - startTime;
-      analytics.trackPerformance("bin_data_load_time", totalDuration);
-      analytics.trackBinCollectionEvent("data_loaded_successfully", {
-        collections_count: futureCollections.length,
-        address_id: addressId,
-        load_time_ms: totalDuration,
-      });
-
-      let savedSettings = await AsyncStorage.getItem("settings");
-      savedSettings = savedSettings ? JSON.parse(savedSettings) : null;
-
-      // Setup notifications (don't fail if this doesn't work)
-      try {
-        await setupNotifications();
-        await addNotifications(savedSettings, futureCollections);
-        analytics.trackNotificationEvent("notifications_setup_success");
-      } catch (notificationError) {
-        analytics.trackError(notificationError, {
-          component: "notification_setup",
-          action: "setup_notifications",
+        // Track error
+        analytics.trackError(err, {
+          component: "home_screen",
+          action: isRefresh ? "refresh_bin_data" : "load_bin_data",
+          error_type: "data_fetch_error",
         });
-        console.warn("Notification setup failed:", notificationError.message);
-        Toast.show({
-          type: "info",
-          text1: "Notifications",
-          text2:
-            "Couldn't set up notifications. You can try again in settings.",
-        });
+
+        if (!isRefresh) {
+          Toast.show({
+            type: "error",
+            text1: "Failed to load bin data",
+            text2: err.message || "Something went wrong. Please try again.",
+          });
+        } else {
+          Toast.show({
+            type: "error",
+            text1: "Refresh failed",
+            text2: err.message || "Something went wrong. Please try again.",
+          });
+        }
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-    } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
-
-      // Track error
-      analytics.trackError(err, {
-        component: "home_screen",
-        action: isRefresh ? "refresh_bin_data" : "load_bin_data",
-        error_type: "data_fetch_error",
-      });
-
-      if (!isRefresh) {
-        Toast.show({
-          type: "error",
-          text1: "Failed to load bin data",
-          text2: err.message || "Something went wrong. Please try again.",
-        });
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Refresh failed",
-          text2: err.message || "Something went wrong. Please try again.",
-        });
-      }
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+    },
+    [router]
+  );
 
   useEffect(() => {
     analytics.trackScreen("home_screen");
     fetchBinData();
-  }, []);
+  }, [fetchBinData]);
 
   const { width = 0, height = 0 } = Dimensions.get("window");
   const cardWidth = width;

@@ -108,8 +108,7 @@ export async function addNotifications(settings, binCollections = []) {
       trigger: { type: "date", date: notificationRefreshDate },
     });
 
-    const notifications =
-      await Notifications.getAllScheduledNotificationsAsync();
+    await Notifications.getAllScheduledNotificationsAsync();
 
     return true;
   } catch (error) {

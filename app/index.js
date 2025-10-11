@@ -27,7 +27,7 @@ export default function Index() {
     };
 
     checkInitialRoute();
-  }, []);
+  }, [router]);
 
   // Show loading screen while determining initial route
   return (

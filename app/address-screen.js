@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text } from "react-native";
 import React from "react";
 import Input from "./components/Input";
 import { VStack } from "@/components/ui/vstack";
@@ -9,7 +9,6 @@ import AddressList from "./components/AddressList";
 import { useAddressSearch } from "./hooks/useAddressSearch";
 import Toast from "react-native-toast-message";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import analytics from "./utils/analytics";
 
 export default function PostcodeScreen() {
