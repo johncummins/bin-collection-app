@@ -116,11 +116,11 @@ export default function PostcodeScreen() {
       {/* Centered Bin Icon & Text */}
       {addresses.length === 0 && !loading && (
         <View className="flex-1 items-center pt-32">
-          <BinIcon width={120} height={120} outline={true} />
-          <Text className="mt-6 px-18 text-center text-xl">
+          <BinIcon width={160} height={160} outline={true} />
+          <Text className="px-18 text-center text-xl">
             Enter your postcode to find your address
           </Text>
-          <Text className="mt-4 px-18 text-center text-sm text-gray-600">
+          <Text className="mt-4 px-18 text-center text-md text-gray-600">
             Find out when your bins will be collected
           </Text>
         </View>

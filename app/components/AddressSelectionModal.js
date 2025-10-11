@@ -169,16 +169,12 @@ export default function AddressSelectionModal({
             bounces={false}
             showsVerticalScrollIndicator={false}
             scrollEventThrottle={16}>
-            <View
-              style={{
-                // padding: 16,
-                paddingHorizontal: 16,
-              }}>
+            <View style={{ paddingHorizontal: 16 }}>
               {/* Centered Bin Icon & Text */}
               {addresses.length === 0 && !loading && (
                 <View className="items-center pt-16">
-                  <BinIcon width={100} height={100} outline={true} />
-                  <Text className="mt-4 px-8 text-center text-md text-gray-600">
+                  <BinIcon width={160} height={160} outline={true} />
+                  <Text className="px-8 text-center text-lg text-gray-600">
                     Enter your postcode to find your address
                   </Text>
                 </View>

@@ -6,7 +6,7 @@ const BinIcon = ({ outline = false, ...props }) => {
   if (outline) {
     return (
       <Image
-        source={require("../../assets/images/WheelieBin.png")}
+        source={require("../../assets/images/bin.png")}
         style={{
           width: props.width || 80,
           height: props.height || 80,

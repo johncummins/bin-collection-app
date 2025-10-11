@@ -4,7 +4,7 @@
     "slug": "bin-collection-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/WheelieBin.png",
+    "icon": "./assets/images/bin.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -37,7 +37,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/WheelieBin.png",
+        "foregroundImage": "./assets/images/bin.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.cummins.bincollectionapp",
@@ -52,14 +52,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/WheelieBin.png"
+      "favicon": "./assets/images/bin.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/WheelieBin.png",
+          "image": "./assets/images/bin.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
