@@ -92,9 +92,9 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 
 If you have questions about this Privacy Policy, please contact us:
 
-- **Email**: privacy@cambridgebins.app
-- **Website**: https://cambridgebins.app/privacy
-- **Support**: https://cambridgebins.app/support
+- **Email**: johncummins1997@gmail.com
+- **Website**: https://cambridge-bins.vercel.app/privacy
+- **Support**: https://cambridge-bins.vercel.app/support
 
 ## Compliance
 

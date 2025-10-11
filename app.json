@@ -19,9 +19,9 @@
       "environment",
       "sustainability"
     ],
-    "privacy": "https://cambridgebins.app/privacy",
-    "supportUrl": "https://cambridgebins.app/support",
-    "homepage": "https://cambridgebins.app",
+    "privacy": "https://cambridge-bins.vercel.app/privacy",
+    "supportUrl": "https://cambridge-bins.vercel.app/support",
+    "homepage": "https://cambridge-bins.vercel.app",
     "author": "Cambridge Bins Team",
     "ios": {
       "supportsTablet": true,
