@@ -13,9 +13,8 @@ export default function Index() {
         const storedAddress = await AsyncStorage.getItem("address");
 
         if (storedAddress) {
-          router.replace("/address-screen");
           // User has an address, go to home screen
-          // router.replace("/home-screen");
+          router.replace("/home-screen");
         } else {
           // No address saved, go to address screen
           router.replace("/address-screen");
