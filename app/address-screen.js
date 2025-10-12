@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import React from "react";
 import Input from "./components/Input";
 import { VStack } from "@/components/ui/vstack";
@@ -147,13 +147,13 @@ export default function PostcodeScreen() {
       {/* Address List */}
       {addresses.length > 0 && (
         <View className="flex-1 px-6 pb-12">
-          <View className="bg-white rounded-lg border border-gray-200 flex-1">
+          <ScrollView className="bg-white rounded-lg border border-gray-200 flex-1">
             <AddressList
               addresses={addresses}
               selectedRowId={selectedRowId}
               onAddressSelect={handleAddressSelect}
             />
-          </View>
+          </ScrollView>
         </View>
       )}
 
