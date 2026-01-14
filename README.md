@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
+# Cambridge Bins (Bin Collection App)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+### Project overview
 
-## Get started
+Cambridge Bins is a small Expo / React Native app that helps residents quickly find their bin collection schedule by postcode, then optionally schedule reminder notifications.
 
-1. Install dependencies
+### Platforms
 
-   ```bash
-   npm install
-   ```
+- **iOS** (simulator + device)
 
-2. Start the app
+### Tech stack
 
-   ```bash
-    npx expo start
-   ```
+- **Expo** + **React Native**
+- **Expo Router** (file-based routing)
+- **Gluestack UI** + **NativeWind/Tailwind** (UI + styling)
+- **AsyncStorage** (persistence)
+- **expo-notifications** (local scheduled reminders)
+- **Firebase Analytics** (user behavior)
+- **Sentry** (error monitoring)
 
-In the output, you'll find options to open the app in a
+### Architecture overview
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+High-level structure:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **`app/`**: Expo Router routes + most app code
+  - **`app/index.js`**: entry route that chooses initial screen based on stored address
+  - **`app/_layout.js`**: global providers + navigation stack
+  - **`app/address-screen.js`**: postcode search + address selection (first-run flow)
+  - **`app/home-screen.js`**: displays upcoming collection dates + modals
+  - **`app/components/`**: route-local UI components (e.g. modals, list etc)
+  - **`app/hooks/`**: reusable logic (e.g. `useAddressSearch`)
+  - **`app/utils/`**: analytics, helpers, notification scheduling, API URL builders
+- **`components/ui/`**: Gluestack UI wrapper components used across the app
+- **`assets/`**: icons/images/fonts
 
-## Get a fresh project
+Main user flows:
 
-When you're ready, run:
+- **First run**: `app/index.js` checks `AsyncStorage` for `"address"` → routes to `address-screen` if missing.
+- **Select address**: user enters postcode → `useAddressSearch` calls the address search endpoint → user picks an address → app saves `"address"` and routes to `home-screen`.
+- **Home screen**: app loads `"address"`, fetches upcoming bin collections, and renders them in a carousel.
+- **Notifications**: user opens the notifications modal, toggles settings, and the app schedules reminders for upcoming collection dates.
+
+### State management
+
+There is **no global state library** (no Redux/Zustand). State is kept simple and local:
+
+What goes where:
+
+- **AsyncStorage**: small persisted user preferences / selection
+  - `"address"`: the selected address object (`{ id, address }`)
+  - `"settings"`: notification settings (day-before/day-of toggles + times + selected bin types)
+- **In-memory state**: fetched collections, transient UI state, and error messages
+
+### Data layer
+
+Network calls are done via `fetch()`:
+
+- **Address search**: `useAddressSearch` builds the URL via `app/utils/wasteCalendarApi.js`
+- **Collection search**: `home-screen` builds the URL via `app/utils/wasteCalendarApi.js`
+
+### Running locally
+
+Install:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Start the dev server:
 
-## Learn more
+```bash
+npm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### Notes / Technical decisions
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **Routing**: Expo Router (file-based routing) keeps navigation aligned with the filesystem and reduces boilerplate.
 
-## Join the community
+- **Notifications**: `expo-notifications` is used for local scheduling. Permission prompts should be tested on a physical device, as simulator support is limited.
 
-Join our community of developers creating universal apps.
+- **Analytics**: `app/utils/analytics.js` centralises analytics and error reporting, routing behavioural events to Firebase and errors to Sentry to ensure consistent event naming.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **TypeScript**: This project is written in JavaScript. If extended further, I would migrate incrementally to TypeScript, starting with the API and state layers.
+
