@@ -37,7 +37,7 @@ export default function AddressSelectionModal({
   const handleAddressSelect = async ({ id: addressId, address }) => {
     setSelectedRowId(selectedRowId === addressId ? null : addressId);
 
-    const addressObject = { id: addressId, address: address };
+    const addressObject = { id: addressId, address };
 
     try {
       await AsyncStorage.setItem("address", JSON.stringify(addressObject));
@@ -123,8 +123,6 @@ export default function AddressSelectionModal({
             style={{
               backgroundColor: "#f7f7f7",
               padding: 16,
-              // borderBottomWidth: 1,
-              // borderBottomColor: "#e5e5e5",
             }}>
             <VStack space="lg">
               <View>

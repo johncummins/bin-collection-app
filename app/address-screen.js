@@ -1,5 +1,5 @@
 import { View, Text, ScrollView } from "react-native";
-import React from "react";
+import { useEffect } from "react";
 import Input from "./components/Input";
 import { VStack } from "@/components/ui/vstack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -11,12 +11,12 @@ import Toast from "react-native-toast-message";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import analytics from "./utils/analytics";
 
-export default function PostcodeScreen() {
+export default function AddressScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
   // Track screen view
-  React.useEffect(() => {
+  useEffect(() => {
     analytics.trackScreen("address_screen");
   }, []);
   const {
@@ -35,7 +35,7 @@ export default function PostcodeScreen() {
   const handleAddressSelect = async ({ id: addressId, address }) => {
     setSelectedRowId(selectedRowId === addressId ? null : addressId);
 
-    const addressObject = { id: addressId, address: address };
+    const addressObject = { id: addressId, address };
 
     try {
       // Track address selection

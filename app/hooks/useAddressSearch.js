@@ -2,6 +2,7 @@ import { useState } from "react";
 import { throttle } from "lodash";
 import Toast from "react-native-toast-message";
 import analytics from "../utils/analytics";
+import { buildAddressSearchUrl } from "../utils/wasteCalendarApi";
 
 export const useAddressSearch = () => {
   const [postcode, setPostcode] = useState("");
@@ -41,11 +42,7 @@ export const useAddressSearch = () => {
 
     try {
       const apiStartTime = Date.now();
-      const response = await fetch(
-        `https://servicelayer3c.azure-api.net/wastecalendar/address/search?postcode=${encodeURIComponent(
-          postcode
-        )}`
-      );
+      const response = await fetch(buildAddressSearchUrl(postcode));
       const apiDuration = Date.now() - apiStartTime;
 
       if (!response.ok) {

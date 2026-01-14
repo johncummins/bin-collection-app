@@ -36,13 +36,6 @@ export default function NotificationsModal({
     organic: true,
   });
 
-  // Immediately call an async function
-  useEffect(() => {
-    if (visible) {
-      init();
-    }
-  }, [visible, init]);
-
   // Configure notification handler
   const init = useCallback(async () => {
     try {
@@ -55,6 +48,13 @@ export default function NotificationsModal({
       // Silent error handling - no user feedback needed
     }
   }, []);
+
+  // Load persisted settings when the modal becomes visible
+  useEffect(() => {
+    if (visible) {
+      init();
+    }
+  }, [visible, init]);
 
   const setupInitialSettingsState = (settings) => {
     // Day before settings

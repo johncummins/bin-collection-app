@@ -27,6 +27,30 @@ import {
   setupNotifications,
 } from "./utils/NotificationHelperFunctions";
 import analytics from "./utils/analytics";
+import { buildCollectionSearchUrl } from "./utils/wasteCalendarApi";
+
+const SkeletonCard = ({ iconSize }) => (
+  <View className="bg-white p-4 rounded-lg mx-6 flex-1 justify-center items-center">
+    {/* Skeleton badge */}
+    <View className="flex-row justify-start w-full mb-4">
+      <View className="bg-gray-200 h-6 w-24 rounded-full" />
+    </View>
+
+    {/* Skeleton date */}
+    <View className="bg-gray-200 h-6 w-48 rounded mb-10" />
+
+    {/* Skeleton icon */}
+    <View className="flex flex-row justify-center items-center">
+      <View className="flex-1 justify-center items-center">
+        <View
+          className="bg-gray-200 rounded-full"
+          style={{ width: iconSize, height: iconSize }}
+        />
+        <View className="bg-gray-200 h-4 w-16 rounded mt-6" />
+      </View>
+    </View>
+  </View>
+);
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -70,9 +94,7 @@ const HomeScreen = () => {
 
         // Fetch fresh data
         const apiStartTime = Date.now();
-        const response = await fetch(
-          `https://servicelayer3c.azure-api.net/wastecalendar/collection/search/${addressId}/?authority=CCC&numberOfCollections=12`
-        );
+        const response = await fetch(buildCollectionSearchUrl(addressId));
         const apiDuration = Date.now() - apiStartTime;
 
         if (!response.ok) {
@@ -188,30 +210,6 @@ const HomeScreen = () => {
   const cardHeight = Math.max(height * 0.45, 280);
   const iconSize = Math.max(width * 0.4, 80);
 
-  // Skeleton loading component
-  const SkeletonCard = () => (
-    <View className="bg-white p-4 rounded-lg mx-6 flex-1 justify-center items-center">
-      {/* Skeleton badge */}
-      <View className="flex-row justify-start w-full mb-4">
-        <View className="bg-gray-200 h-6 w-24 rounded-full" />
-      </View>
-
-      {/* Skeleton date */}
-      <View className="bg-gray-200 h-6 w-48 rounded mb-10" />
-
-      {/* Skeleton icon */}
-      <View className="flex flex-row justify-center items-center">
-        <View className="flex-1 justify-center items-center">
-          <View
-            className="bg-gray-200 rounded-full"
-            style={{ width: iconSize, height: iconSize }}
-          />
-          <View className="bg-gray-200 h-4 w-16 rounded mt-6" />
-        </View>
-      </View>
-    </View>
-  );
-
   if (loading) {
     return (
       <View className="flex-1 p-6">
@@ -230,7 +228,7 @@ const HomeScreen = () => {
             snapEnabled={true}
             height={cardHeight}
             loop={false}
-            renderItem={() => <SkeletonCard />}
+            renderItem={() => <SkeletonCard iconSize={iconSize} />}
           />
 
           {/* Skeleton pagination dots */}
@@ -367,8 +365,6 @@ const HomeScreen = () => {
               size="lg"
               variant="outline"
               action="muted">
-              {/* <Icon name="calendar" className="mr-2" />{" "} */}
-              {/* Replace with relevant icon */}
               <BadgeText>Next Collection</BadgeText>
             </Badge>
           </View>

@@ -1,8 +1,8 @@
-import { getBinColorName } from "./HelperFunctions"; // Importing the function
+import { getBinColorName } from "./HelperFunctions";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 
-let FURTHEST_DATE = null;
+let furthestScheduledDate = null;
 
 export const DEFAULT_SETTINGS = {
   dayBefore: {
@@ -54,11 +54,8 @@ export async function addNotifications(settings, binCollections = []) {
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
 
-    // Reset furthest date
-    FURTHEST_DATE = null;
-
-    // End here if no collection dates
-    if (binCollections.length === 0) return;
+    // Reset furthest scheduled date
+    furthestScheduledDate = null;
 
     const { dayBefore, dayOf, roundTypes: selectedRoundTypes = {} } = settings;
 
@@ -94,9 +91,9 @@ export async function addNotifications(settings, binCollections = []) {
       });
     }
 
-    if (FURTHEST_DATE === null) return;
+    if (furthestScheduledDate === null) return;
 
-    const notificationRefreshDate = new Date(FURTHEST_DATE);
+    const notificationRefreshDate = new Date(furthestScheduledDate);
     notificationRefreshDate.setDate(notificationRefreshDate.getDate() + 1);
 
     // Refresh notification
@@ -133,8 +130,8 @@ async function addNotification({
   triggerDate.setMinutes(time.getMinutes());
 
   // Save the furthest date in the future
-  if (!FURTHEST_DATE || triggerDate > FURTHEST_DATE) {
-    FURTHEST_DATE = triggerDate;
+  if (!furthestScheduledDate || triggerDate > furthestScheduledDate) {
+    furthestScheduledDate = triggerDate;
   }
 
   if (triggerDate < new Date()) return;
