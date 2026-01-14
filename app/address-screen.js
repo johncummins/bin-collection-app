@@ -156,48 +156,6 @@ export default function AddressScreen() {
           </ScrollView>
         </View>
       )}
-
-      <Toast
-        position="bottom"
-        config={{
-          error: (props) => (
-            <View
-              style={{
-                backgroundColor: "#ef4444",
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                borderRadius: 8,
-                marginHorizontal: 16,
-                marginBottom: 16,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 3.84,
-                elevation: 5,
-              }}>
-              <Text
-                style={{
-                  color: "white",
-                  fontSize: 16,
-                  fontWeight: "600",
-                  marginBottom: 4,
-                  textAlign: "center",
-                }}>
-                {props.text1}
-              </Text>
-              <Text
-                style={{
-                  color: "white",
-                  fontSize: 14,
-                  opacity: 0.9,
-                  textAlign: "center",
-                }}>
-                {props.text2}
-              </Text>
-            </View>
-          ),
-        }}
-      />
     </View>
   );
 }

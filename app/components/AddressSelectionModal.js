@@ -49,12 +49,6 @@ export default function AddressSelectionModal({
 
       // Close the modal
       handleClose();
-
-      Toast.show({
-        type: "success",
-        text1: "Address updated",
-        text2: "Your address has been updated successfully.",
-      });
     } catch (_error) {
       Toast.show({
         type: "error",
@@ -211,48 +205,6 @@ export default function AddressSelectionModal({
               )}
             </View>
           </ScrollView>
-
-          <Toast
-            position="bottom"
-            config={{
-              error: (props) => (
-                <View
-                  style={{
-                    backgroundColor: "#ef4444",
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                    borderRadius: 8,
-                    marginHorizontal: 16,
-                    marginBottom: 16,
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                    elevation: 5,
-                  }}>
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 16,
-                      fontWeight: "600",
-                      marginBottom: 4,
-                      textAlign: "center",
-                    }}>
-                    {props.text1}
-                  </Text>
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 14,
-                      opacity: 0.9,
-                      textAlign: "center",
-                    }}>
-                    {props.text2}
-                  </Text>
-                </View>
-              ),
-            }}
-          />
         </SafeAreaView>
       </GestureHandlerRootView>
     </Modal>

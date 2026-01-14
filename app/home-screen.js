@@ -420,6 +420,12 @@ const HomeScreen = () => {
         action: "address_selection",
         error_type: "address_update_error",
       });
+
+      Toast.show({
+        type: "error",
+        text1: "Update failed",
+        text2: "Couldn't update your address. Please try again.",
+      });
     } finally {
       // Always clear the flag, even if there's an error
       setIsUpdatingAddress(false);
@@ -511,8 +517,6 @@ const HomeScreen = () => {
           <ButtonText>Manage Notifications</ButtonText>
         </Button>
       </View>
-
-      <Toast />
 
       {/* Notifications Modal */}
       <NotificationsModal

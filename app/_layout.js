@@ -3,6 +3,7 @@ import "@/global.css";
 import { Stack } from "expo-router";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useEffect } from "react";
+import Toast from "react-native-toast-message";
 import analytics from "./utils/analytics"; // This now initializes Sentry too
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -28,6 +29,7 @@ export default function RootLayout() {
           />
           <Stack.Screen name="home-screen" options={{ title: "" }} />
         </Stack>
+        <Toast position="bottom" />
       </GluestackUIProvider>
     </ErrorBoundary>
   );
