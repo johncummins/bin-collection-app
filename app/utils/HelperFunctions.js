@@ -2,18 +2,21 @@ const binColours = {
   domestic: "#000000",
   organic: "#026928",
   recycle: "#0D47A1",
+  food: "#6F4E37",
 };
 
 const binNames = {
   domestic: "General Waste",
-  organic: "Food Waste",
+  organic: "Organic Waste",
   recycle: "Recyclables",
+  food: "Food Waste",
 };
 
 const binColorNames = {
   domestic: "black",
   organic: "green",
   recycle: "blue",
+  food: "brown",
 };
 
 export function getDateWithSuffix(date) {

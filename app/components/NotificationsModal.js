@@ -34,6 +34,7 @@ export default function NotificationsModal({
     domestic: true,
     recycle: true,
     organic: true,
+    food: true,
   });
 
   // Configure notification handler
@@ -70,7 +71,11 @@ export default function NotificationsModal({
     setDayOfTime(settings?.dayOf?.time ?? DEFAULT_SETTINGS.dayOf.time);
 
     // Round types settings
-    setRoundTypes(settings?.roundTypes ?? DEFAULT_SETTINGS.roundTypes);
+    // Merge defaults so older saved settings still include new round types (e.g. "food")
+    setRoundTypes({
+      ...DEFAULT_SETTINGS.roundTypes,
+      ...(settings?.roundTypes || {}),
+    });
   };
 
   // Handle automatic updates when settings change
@@ -441,12 +446,41 @@ export default function NotificationsModal({
                     color: "#000000",
                     fontWeight: "400",
                   }}>
-                  Green (food waste)
+                  Green (organic waste)
                 </Text>
                 <Text
                   style={{
                     fontSize: 20,
                     color: roundTypes.organic ? "#007AFF" : "transparent",
+                    fontWeight: "600",
+                  }}>
+                  ✓
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderBottomWidth: 0.5,
+                  borderBottomColor: "#c6c6c8",
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                }}
+                onPress={() => toggleRoundType("food")}>
+                <Text
+                  style={{
+                    fontSize: 17,
+                    color: "#000000",
+                    fontWeight: "400",
+                  }}>
+                  Brown (food waste)
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: roundTypes.food ? "#007AFF" : "transparent",
                     fontWeight: "600",
                   }}>
                   ✓

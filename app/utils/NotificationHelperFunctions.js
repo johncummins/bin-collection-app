@@ -13,7 +13,7 @@ export const DEFAULT_SETTINGS = {
     enabled: false,
     time: new Date().setHours(7, 0, 0, 0),
   },
-  roundTypes: { domestic: true, recycle: true, organic: true },
+  roundTypes: { domestic: true, recycle: true, organic: true, food: true },
 };
 
 export async function setupNotifications() {
@@ -57,7 +57,12 @@ export async function addNotifications(settings, binCollections = []) {
     // Reset furthest scheduled date
     furthestScheduledDate = null;
 
-    const { dayBefore, dayOf, roundTypes: selectedRoundTypes = {} } = settings;
+    const { dayBefore, dayOf } = settings;
+    // Merge defaults so older saved settings still include new round types (e.g. "food")
+    const selectedRoundTypes = {
+      ...DEFAULT_SETTINGS.roundTypes,
+      ...(settings.roundTypes || {}),
+    };
 
     // End here if both notifications are turned off
     if (!dayBefore.enabled && !dayOf.enabled) return;
