@@ -3,7 +3,7 @@ import {
   getBinColour,
   getBinName,
   getBinColorName,
-} from "../HelperFunctions";
+} from "../helperFunctions";
 
 describe("HelperFunctions", () => {
   describe("getDateWithSuffix", () => {

@@ -21,11 +21,11 @@ import {
   getDateWithSuffix,
   getBinName,
   getBinColour,
-} from "./utils/HelperFunctions";
+} from "./utils/helperFunctions";
 import {
   addNotifications,
   setupNotifications,
-} from "./utils/NotificationHelperFunctions";
+} from "./utils/notificationHelperFunctions";
 import analytics from "./utils/analytics";
 import { buildCollectionSearchUrl } from "./utils/wasteCalendarApi";
 

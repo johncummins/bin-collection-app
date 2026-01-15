@@ -14,7 +14,7 @@ import {
   DEFAULT_SETTINGS,
   addNotifications,
   setupNotifications,
-} from "../utils/NotificationHelperFunctions";
+} from "../utils/notificationHelperFunctions";
 
 export default function NotificationsModal({
   visible,
