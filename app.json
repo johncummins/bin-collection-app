@@ -4,7 +4,7 @@
     "slug": "bin-collection-app",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon.png",
+    "icon": "./assets/images/bin.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon.png",
+        "foregroundImage": "./assets/images/bin.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.cummins.bincollectionapp",
